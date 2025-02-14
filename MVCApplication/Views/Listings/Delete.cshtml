@@ -1,0 +1,304 @@
+﻿@model BusinessLayer.Listing;
+<div class="delete-button-con">
+	<form asp-action="Delete">
+		<a asp-action="Index">Back to List</a> |
+		<input type="submit" value="Delete" class="btn btn-danger" />
+		<input type="hidden" asp-for="Id" />
+	</form>
+</div>
+<div class="listing-details-top">
+	<div class="listing-details-top-image">
+		<div class="details-img-con">
+			<div>
+				<div class="arrow-left" id="prevBtn">
+					<
+				</div>
+			</div>
+			<div style="width:100%;z-index: -1;">
+				@{
+
+					var base64 = Convert.ToBase64String(Model.Car.Images[0].Data);
+					var Image = String.Format("data:image/gif;base64,{0}", base64);
+					<img src="@Image" style="width: 80%" class="images" id="currentImage" />
+				}
+			</div>
+			<div>
+				<div class="arrow-right" id="nextBtn">
+					>
+				</div>
+			</div>
+		</div>
+		<div class="details-small-img-con">
+			@{
+				for (int i = 0; i < Model.Car.Images.Count; i++)
+				{
+					var base64_ = Convert.ToBase64String(Model.Car.Images[i].Data);
+					var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+					<div class="small-image">
+						<img src="@Image_" class="images images-small" />
+					</div>
+				}
+			}
+		</div>
+	</div>
+	<div class="listing-image-header">
+		<h3>@Model.Name</h3>
+		<hr />
+		<p>@Model.Description</p>
+		<table class="table table-striped">
+			<tbody>
+				<tr>
+					<th>Make</th>
+					<td>@Model.Car.Make</td>
+				</tr>
+				<tr>
+					<th>Model</th>
+					<td>@Model.Car.Model</td>
+				</tr>
+				<tr>
+					<th>Horse Power</th>
+					<td>@Model.Car.HorsePower</td>
+				</tr>
+				<tr>
+					<th>Mileage</th>
+					<td>@Model.Car.Mileage</td>
+				</tr>
+				<tr>
+					<th>Fuel Type</th>
+					<td>@Model.Car.FuelType</td>
+				</tr>
+				<tr>
+					<th>Transmittion</th>
+					<td>@Model.Car.Transmittion</td>
+				</tr>
+				<tr>
+					<th>Color</th>
+					<td>@Model.Car.Color</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<style>
+	.listing-details-top {
+		display: flex;
+		align-items: center;
+	}
+
+	.listing-details-top-image {
+		display: flex;
+		flex-direction: column;
+		width: 40%;
+	}
+
+
+	.details-img-con {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		min-height: 300px;
+	}
+
+		.details-img-con div {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+	.arrow-left, .arrow-right {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		color: black;
+		border: 1px solid black;
+		border-radius: 50%;
+		background-color: white;
+		font-size: 13px;
+		width: 30px;
+		height: 30px;
+		cursor: pointer;
+		transition: color 0.2s linear;
+		transition: background-color 0.2s linear;
+	}
+
+		.arrow-left:hover, .arrow-right:hover {
+			color: white;
+			background-color: black;
+			border: 1px solid black;
+		}
+
+	.details-img-con div img, .details-small-img-con img {
+		aspect-ratio: 16/9;
+		object-fit: cover;
+	}
+
+	#currentImage {
+		width: 100%;
+		height: 100%;
+		transition: transform 0.5s ease-in-out;
+	}
+
+	.small-image {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: 0.3px solid black;
+		aspect-ratio: 16/9;
+		max-width: 100%;
+	}
+
+	.images {
+		width: 80%;
+	}
+
+	.details-small-img-con {
+		display: flex;
+		justify-content: space-evenly;
+		align-self: center;
+		min-height: 100px;
+		gap: 25px;
+		overflow: auto;
+		width: 100%;
+	}
+
+		.details-small-img-con > div {
+			width: 30%;
+			transition: filter 0.15s ease-in;
+			cursor: pointer;
+			min-width: 95px;
+		}
+
+	.small-image img {
+		transition: transform 0.15s ease-in;
+		width: 90%;
+	}
+
+	.small-image:hover img {
+		filter: opacity(0.8);
+		transform: scale(1.1);
+	}
+
+	.listing-image-header {
+		margin-left: 10%;
+		width: 50%;
+	}
+
+	.selected {
+		opacity: 0.8;
+		transform: scale(0.8);
+		transition: all 0.3s ease-in-out;
+		transform: translateX(0);
+	}
+
+	.slide-left {
+		animation: slideLeft 1s ease-in-out;
+	}
+
+	.slide-right {
+		animation: slideRight 1s ease-in-out;
+	}
+
+	.delete-button-con{
+		width: 100%;
+		display:flex;
+		justify-content: flex-end;
+	}
+
+	@@keyframes slideLeft {
+		0% {
+			transform: translateX(0);
+		}
+
+		50% {
+			transform: translateX(-20%);
+		}
+
+		100% {
+			transform: translateX(0);
+		}
+	}
+
+	@@keyframes slideRight {
+		0% {
+			transform: translateX(0);
+		}
+
+		50% {
+			transform: translateX(20%);
+		}
+
+		100% {
+			transform: translateX(0);
+		}
+	}
+</style>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+	  let images = document.querySelectorAll(".images-small");
+	  let imagesContainer = document.querySelectorAll(".small-image");
+	  let currentImage = document.getElementById("currentImage");
+	  let prevBtn = document.getElementById("prevBtn");
+	  let nextBtn = document.getElementById("nextBtn");
+	  let index = 0;
+	  let isFirstLoad = true;
+
+	  function changeImage(newIndex, direction = "next") {
+		if (images.length == 1) return;
+		if (images.length > 0) {
+		  if (!isFirstLoad) {
+			// Add animation based on direction
+			currentImage.classList.add(direction === "next" ? "slide-right" : "slide-left");
+
+			setTimeout(() => {
+			  updateImage(newIndex);
+
+			  // Remove animation classes after transition
+			  currentImage.classList.remove("slide-left", "slide-right");
+			}, 1000);
+		  } else {
+			updateImage(newIndex);
+			isFirstLoad = false;
+		  }
+		}
+	  }
+
+	  function updateImage(newIndex) {
+		// Remove 'selected' class from all thumbnails
+		images.forEach(img => img.classList.remove("selected"));
+
+		// Update current image source
+		currentImage.src = images[newIndex].src;
+
+		// Add 'selected' class to the new selected thumbnail
+		images[newIndex].classList.add("selected");
+
+		index = newIndex;
+	  }
+
+	  // Click event for thumbnail images
+	  imagesContainer.forEach((img, imgIndex) => {
+		img.addEventListener("click", () => {
+			if (imgIndex < index)
+				changeImage(imgIndex, "prev");
+			else if (imgIndex > index)
+				changeImage(imgIndex, "next");
+		});
+	  });
+
+	  // Navigation button events
+	  nextBtn.addEventListener("click", () => {
+		let newIndex = (index + 1) % images.length;
+		changeImage(newIndex, "next");
+	  });
+
+	  prevBtn.addEventListener("click", () => {
+		let newIndex = (index - 1 + images.length) % images.length;
+		changeImage(newIndex, "prev");
+	  });
+
+	  // Initially set the first image without animation
+	  changeImage(0);
+	});
+</script>
