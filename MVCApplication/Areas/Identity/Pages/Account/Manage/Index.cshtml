@@ -29,14 +29,11 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        function readURL(input){
-            var ext = input.files[0]['name'].substring(input.files[0]['name'].lastIndexOf('.') + 1).toLowerCase();
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                $('#img').attr('src', e.target.result);
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    </script>
 }
+
+<style>
+    .manage-index-con-input > *{
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+</style>

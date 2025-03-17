@@ -136,6 +136,23 @@ namespace DataLayer
             }
         }
 
+        public async Task UpdateAsync(User user)
+        {
+            try
+            {
+                User userFromDb = await context.Users.FindAsync(user.Id);
+                if (userFromDb != null)
+                {
+                    userFromDb.Listings = user.Listings;
+                    await context.SaveChangesAsync();
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public async Task DeleteUserByNameAsync(string name)
         {
             try

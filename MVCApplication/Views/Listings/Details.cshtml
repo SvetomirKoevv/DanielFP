@@ -37,41 +37,41 @@
 			</div>
 		</div>
 		<div class="listing-image-header" style="padding: 10px;">
-				<h3 style="font-weight: bold; font-size: 26px">Характеристики</h3>
-				<hr />
-				<table class="table table-striped">
-					<tbody>
-						<tr>
-							<th>Make</th>
-							<td>@Model.Listing.Car.Make</td>
-						</tr>
-						<tr>
-							<th>Model</th>
-							<td>@Model.Listing.Car.Model</td>
-						</tr>
-						<tr>
-							<th>Horse Power</th>
-							<td>@Model.Listing.Car.HorsePower</td>
-						</tr>
-						<tr>
-							<th>Mileage</th>
-							<td>@Model.Listing.Car.Mileage</td>
-						</tr>
-						<tr>
-							<th>Fuel Type</th>
-							<td>@Model.Listing.Car.FuelType</td>
-						</tr>
-						<tr>
-							<th>Transmittion</th>
-							<td>@Model.Listing.Car.Transmittion</td>
-						</tr>
-						<tr>
-							<th>Color</th>
-							<td>@Model.Listing.Car.Color</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+			<h3 style="font-weight: bold; font-size: 26px">Характеристики</h3>
+			<hr />
+			<table class="table table-striped">
+				<tbody>
+					<tr>
+						<th>Make</th>
+						<td>@Model.Listing.Car.Make</td>
+					</tr>
+					<tr>
+						<th>Model</th>
+						<td>@Model.Listing.Car.Model</td>
+					</tr>
+					<tr>
+						<th>Horse Power</th>
+						<td>@Model.Listing.Car.HorsePower</td>
+					</tr>
+					<tr>
+						<th>Mileage</th>
+						<td>@Model.Listing.Car.Mileage</td>
+					</tr>
+					<tr>
+						<th>Fuel Type</th>
+						<td>@Model.Listing.Car.FuelType</td>
+					</tr>
+					<tr>
+						<th>Transmittion</th>
+						<td>@Model.Listing.Car.Transmittion</td>
+					</tr>
+					<tr>
+						<th>Color</th>
+						<td>@Model.Listing.Car.Color</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 		<div class="listing-image-details">
 			<h3 style="font-weight: bold; font-size: 26px;">Допълнителна информация</h3>
 			<hr />
@@ -119,15 +119,45 @@
 				<a href="">Contanct Us for <br />more information</a>
 			</div>
 			<div class="offer-fav">
-				<form asp-action="FavouriteItem" method="post">
-					<input type="hidden" value="@Model.Listing.Id" asp-for="Listing.Id" />
-					<input type="submit" value="Add To favourites" class="btn btn-primary"/>
-				</form>
+				@{
+					if (User.Identity.IsAuthenticated)
+					{
+						<form asp-action="FavouriteItem" method="post">
+							<input type="hidden" value="@Model.Listing.Id" asp-for="Listing.Id" />
+							<input type="submit" value="Add To favourites" class="btn btn-primary" />
+						</form>
+					}
+					else
+					{
+						<i style="color: red;">Log In to favourite</i>
+					}
+				}
 			</div>
 		</div>
 	</div>
 </div>
-
+<div class="listing-details-bottom">
+	@{
+		for (int i = 0; i < Model.allListings.Count; i++)
+		{
+			<a class="listing-item" asp-action="Details" asp-controller="AuctionListings" asp-route-id="@Model.allListings[i].Id">
+				<div class="listing-item-img">
+					@{
+						var base64_ = Convert.ToBase64String(Model.allListings[i].Car.Images[0].Data);
+						var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+						<img src="@Image_" />
+					}
+				</div>
+				<div class="listing-item-name">
+					<p>@Model.allListings[i].Name</p>
+				</div>
+				<div class="listing-item-model">
+					<p>@Model.allListings[i].Car.Make @Model.allListings[i].Car.Model</p>
+				</div>
+			</a>
+		}
+	}
+</div>
 <style>
 	.listing-details-top {
 		display: flex;
@@ -198,6 +228,7 @@
 	}
 
 	.arrow-left, .arrow-right {
+		user-select: none;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -301,6 +332,12 @@
 		top: 20px;
 		min-width: 250px;
 	}
+
+	.listing-details-bottom {
+		display: flex;
+		gap: 15px;
+	}
+
 
 	@@keyframes slideLeft {
 		0% {

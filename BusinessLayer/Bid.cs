@@ -20,17 +20,21 @@ namespace BusinessLayer
         public string UserId { get; set; }
 
         [Required]
-        public decimal Money { get; set; }
+        public int Money { get; set; }
+
+        [Required]
+        public AuctionListing AuctionListing { get; set; }
 
         public Bid()
         {
 
         }
 
-        public Bid (string userId, decimal money_)
+        public Bid (User user, AuctionListing listing,  int money_)
         {
-            UserId = userId;
+            User = user;
             Money = money_;
+            AuctionListing = listing;
         }
 
     }

@@ -1,44 +1,296 @@
-﻿@model BusinessLayer.AuctionListing
+﻿@model AuctionListingCreateModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Create";
 }
 
-<h1>Edit</h1>
+<h1>Create</h1>
 
-<h4>AuctionListing</h4>
+<h4>Auction</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="StartingPrice" class="control-label"></label>
-                <input asp-for="StartingPrice" class="form-control" />
-                <span asp-validation-for="StartingPrice" class="text-danger"></span>
+    <div class="col-md-12">
+        <form asp-action="Edit" enctype="multipart/form-data" class="d-flex w-100">
+            <div class="form-con w-25">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StartingPrice" class="control-label">Starting Price</label>
+                    <input asp-for="StartingPrice" class="form-control" id="price-input" />
+                    <span asp-validation-for="StartingPrice" class="text-danger"></span>
+                </div>
+                <hr />
+                <div class="form-group">
+                    <label asp-for="Make" class="control-label"></label>
+                    <input asp-for="Make" class="form-control" />
+                    <span asp-validation-for="Make" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Model" class="control-label"></label>
+                    <input asp-for="Model" class="form-control" />
+                    <span asp-validation-for="Model" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="HorsePower" class="control-label"></label>
+                    <input asp-for="HorsePower" class="form-control" />
+                    <span asp-validation-for="HorsePower" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Mileage" class="control-label"></label>
+                    <input asp-for="Mileage" class="form-control" />
+                    <span asp-validation-for="Mileage" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StartDate" class="control-label"></label>
+                    <input asp-for="StartDate" class="form-control" type="date" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Duration" class="control-label"></label>
+                    <input asp-for="Duration" class="form-control" type="number" />
+                    <span asp-validation-for="Duration" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="FuelType" class="control-label"></label>
+                    <select asp-for="FuelType" class="form-control" asp-items="Html.GetEnumSelectList<BusinessLayer.FuelType>()">
+                    </select>
+                    <span asp-validation-for="FuelType" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Transmittion" class="control-label"></label>
+                    <select asp-for="Transmittion" class="form-control" asp-items="Html.GetEnumSelectList<BusinessLayer.TransmissionType>()">
+                    </select>
+                    <span asp-validation-for="Transmittion" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Color" class="control-label"></label>
+                    <select asp-for="Color" class="form-control" asp-items="Html.GetEnumSelectList<BusinessLayer.CarColor>()">
+                    </select>
+                    <span asp-validation-for="Color" class="text-danger"></span>
+                </div>
+
             </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="edit-form-right w-75 d-flex flex-column justify-content-between align-items-end">
+                <div class="d-flex flex-column justify-content-start">
+                    <div class="edit-form-images">
+                        @{
+                            for (int i = 0; i < Model.Images.Count; i++)
+                            {
+
+                                var base64_ = Convert.ToBase64String(Model.Images[i].Data);
+                                var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+                                <div class="small-image" style="position: relative;">
+                                    <div class="delete-image" id="delete-image-button-@i">
+                                        <i class="fa fa-trash-o" style="font-size:12px"></i>
+                                    </div>
+                                    <img src="@Image_" class="images" />
+                                    <input type="hidden" value="@Image_" class="img-info" />
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <div class="form-group d-flex align-items-end flex-column" style="margin-top: 5px; margin-bottom: 5px">
+                        <input asp-for="FileUpload.FormFile" type="file" id="image-input" accept="image/png, image/jpeg" multiple>
+                        <span asp-validation-for="FileUpload.FormFile" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Submit" class="btn btn-primary" id="submit" />
+                </div>
             </div>
         </form>
     </div>
 </div>
 
+
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
 
+<style>
+    .edit-form-right > div {
+        width: 100%;
+    }
+
+        .edit-form-right > div > div {
+            width: 100%;
+        }
+
+    .edit-form-images {
+        margin-left: 35px;
+        display: flex;
+        gap: 20px;
+        height: 200px;
+        justify-content: flex-start;
+        align-items: center;
+        overflow: auto;
+    }
+
+        .edit-form-images > div > img {
+            max-width: 300px;
+            min-width: 250px;
+        }
+
+    .small-image {
+        width: 30%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .images {
+        width: 100%;
+        object-fit: cover;
+        aspect-ratio: 16/9;
+    }
+
+    .delete-image {
+        width: 23px;
+        height: 23px;
+        border: 0.5px solid red;
+        color: red;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        transition: all 0.3s ease-in-out;
+        cursor: pointer;
+    }
+
+        .delete-image:hover {
+            transform: scale(1.2);
+            border: 0.5px solid red;
+            background-color: red;
+            color: white;
+        }
+</style>
+
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+
+<script>
+    window.addEventListener('load', () => {
+        console.log('mazna');
+        document.getElementById('price-input').value = document.getElementById('price-input').value.replace(',', '.');
+    });
+
+    document.getElementById('price-input').addEventListener('input', () => {
+        document.getElementById('price-input').value = document.getElementById('price-input').value.replace(',', '.');
+    });
+    // Function to convert base64 to a File object with proper size and content
+    function base64ToFile(base64String, fileName) {
+        console.log(base64String);
+        // Clean the base64 string to remove any metadata (like "data:image/png;base64,")
+        const cleanBase64String = base64String.replace(/^data:.+;base64,/, "");
+        console.log(cleanBase64String);
+        // Decode the cleaned base64 string to binary data
+        const byteCharacters = atob(cleanBase64String);
+        const byteArrays = [];
+
+        // Convert binary data to a byte array
+        for (let offset = 0; offset < byteCharacters.length; offset++) {
+            byteArrays.push(byteCharacters.charCodeAt(offset));
+        }
+
+        // Check byte array length to confirm the data is correctly decoded
+        console.log('Byte array length:', byteArrays.length); // Debugging line
+
+        // Convert the byte array into a Blob object
+        const byteArray = new Uint8Array(byteArrays);
+        console.log('Byte Array:', byteArray); // Debugging line
+
+        const blob = new Blob([byteArray], { type: 'image/png' }); // Ensure MIME type matches your data (e.g., 'image/jpeg', 'application/pdf', etc.)
+
+        // Log the size of the Blob to confirm it has a size
+        console.log('Blob size:', blob.size); // Debugging line
+
+        // Create and return the File object
+        return new File([blob], fileName, { type: blob.type, lastModified: new Date() });
+    }
+
+    // Function to check if the file already exists in the input
+    function fileExistsInInput(file, input) {
+        for (let i = 0; i < input.files.length; i++) {
+            // Compare by file name and content (you can adjust the criteria)
+            if (input.files[i].name === file.name) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Function to handle the file transfer on button click
+    function handleFileTransfer() {
+        const imageInput = document.getElementById('image-input'); // Get the file input element
+        const imgInfoInputs = document.querySelectorAll('.img-info'); // Get all inputs with class 'img-info'
+
+        const dataTransfer = new DataTransfer(); // To hold the files
+
+        // Add already existing files to DataTransfer (to preserve them)
+        for (let i = 0; i < imageInput.files.length; i++) {
+            dataTransfer.items.add(imageInput.files[i]);
+        }
+
+        imgInfoInputs.forEach((input, index) => {
+            const base64String = input.value; // Get the base64 string from each input
+            const fileName = `image_${index + 1}.png`; // Create a file name (you can modify this)
+            console.log("input" + input.value);
+            const file = base64ToFile(base64String, fileName); // Convert base64 to File
+
+            // Check if the file already exists in the input
+            if (!fileExistsInInput(file, imageInput)) {
+                dataTransfer.items.add(file); // Add the file to DataTransfer if it doesn't exist
+            }
+        });
+
+        // Append the files to the image input
+        imageInput.files = dataTransfer.files;
+    }
+
+    // Event listener for the submit button
+    document.getElementById('submit').addEventListener('click', handleFileTransfer);
+
+    document.querySelectorAll('.delete-image').forEach(x => x.addEventListener('click', (z) =>{
+        let allButtons = document.querySelectorAll('.delete-image');
+        let allImages = document.querySelectorAll('.images');
+
+
+        let index = -1;
+
+        for (let i = 0; i < allButtons.length; i++){
+            if (allButtons[i] == z.target){
+                index = i;
+            }
+        }
+        console.log(index);
+    }));
+
+    let imageDeleteButtons = document.querySelectorAll('.delete-image');
+    let allImages = document.querySelectorAll('.small-image');
+
+    imageDeleteButtons.forEach((x, i) => x.addEventListener('click', () => {
+        console.log('mazna' + i);
+
+        allImages[i].remove();
+    }));
+</script>

@@ -16,13 +16,19 @@ namespace BusinessLayer
         public Car Car { get; set; }
 
         [Required]
-        public decimal StartingPrice { get; set; }
+        public int StartingPrice { get; set; }
 
         [Required]
         public string Name { get; set; }    
 
         [Required]
         public string Description { get; set; }
+
+        [Required]
+        public DateTime StartDateTime { get; set; } 
+
+        [Required]
+        public int DurationInHours { get; set; }    
 
         public List<Bid> Bids { get; set; }
 
@@ -31,13 +37,21 @@ namespace BusinessLayer
             Bids = new List<Bid>();
         }
 
-        public AuctionListing(Car car_, decimal startingPrice_, string name_, string description_)
+        public AuctionListing
+            (Car car_, 
+            int startingPrice_, 
+            string name_, 
+            string description_, 
+            DateTime startDateTime_, 
+            int durationInHours_)
         {
             Car = car_;
             StartingPrice = startingPrice_;
             Name = name_;
             Description = description_;
-            
+            StartDateTime = startDateTime_;
+            DurationInHours = durationInHours_;
+
             Bids = new List<Bid>();
         }
     }

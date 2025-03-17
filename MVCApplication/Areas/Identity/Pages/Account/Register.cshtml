@@ -32,9 +32,26 @@
             </div>
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </form>
+        <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Log in instead</a>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+
+<style>
+    .register-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .register-con {
+        width: 45%;
+    }
+
+    #registerForm > * {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+</style>

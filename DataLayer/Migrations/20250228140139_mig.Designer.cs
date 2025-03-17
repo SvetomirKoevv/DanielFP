@@ -12,14 +12,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(RevHausDbContext))]
-    [Migration("20250123153239_f_mig")]
-    partial class f_mig
+    [Migration("20250228140139_mig")]
+    partial class mig
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.35")
+                .HasAnnotation("ProductVersion", "6.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -39,12 +39,18 @@ namespace DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("DurationInHours")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("StartingPrice")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StartingPrice")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -61,11 +67,11 @@ namespace DataLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("AuctionListingId")
+                    b.Property<int>("AuctionListingId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Money")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Money")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -124,18 +130,18 @@ namespace DataLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CarId")
-                        .HasColumnType("int");
-
                     b.Property<byte[]>("Data")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<int>("VehicleId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CarId");
+                    b.HasIndex("VehicleId");
 
-                    b.ToTable("Images");
+                    b.ToTable("Image");
                 });
 
             modelBuilder.Entity("BusinessLayer.Listing", b =>
@@ -157,8 +163,8 @@ namespace DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -393,15 +399,19 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("BusinessLayer.Bid", b =>
                 {
-                    b.HasOne("BusinessLayer.AuctionListing", null)
+                    b.HasOne("BusinessLayer.AuctionListing", "AuctionListing")
                         .WithMany("Bids")
-                        .HasForeignKey("AuctionListingId");
+                        .HasForeignKey("AuctionListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("BusinessLayer.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AuctionListing");
 
                     b.Navigation("User");
                 });
@@ -410,7 +420,7 @@ namespace DataLayer.Migrations
                 {
                     b.HasOne("BusinessLayer.Car", "Car")
                         .WithMany("Images")
-                        .HasForeignKey("CarId")
+                        .HasForeignKey("VehicleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
