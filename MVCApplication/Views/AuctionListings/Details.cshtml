@@ -1,36 +1,469 @@
-﻿@model BusinessLayer.AuctionListing
+﻿@model ListingAuctionDetailsViewModel
 
-@{
-    ViewData["Title"] = "Details";
-}
+<div class="listing-details-top">
+	<div class="left">
+		<div class="listing-details-top-image">
+			<div class="details-img-con">
+				<div>
+					<div class="arrow-left" id="prevBtn">
+						<
+					</div>
+				</div>
+				<div style="width:100%;z-index: -1;">
+					@{
 
-<h1>Details</h1>
+						var base64 = Convert.ToBase64String(Model.Listing.Car.Images[0].Data);
+						var Image = String.Format("data:image/gif;base64,{0}", base64);
+						<img src="@Image" style="width: 80%" class="images" id="currentImage" />
+					}
+				</div>
+				<div>
+					<div class="arrow-right" id="nextBtn">
+						>
+					</div>
+				</div>
+			</div>
+			<div class="details-small-img-con">
+				@{
+					for (int i = 0; i < Model.Listing.Car.Images.Count; i++)
+					{
+						var base64_ = Convert.ToBase64String(Model.Listing.Car.Images[i].Data);
+						var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+						<div class="small-image">
+							<img src="@Image_" class="images images-small" />
+						</div>
+					}
+				}
+			</div>
+		</div>
+		<div class="listing-image-header" style="padding: 10px;">
+			<h3 style="font-weight: bold; font-size: 26px">Характеристики</h3>
+			<hr />
+			<table class="table table-striped">
+				<tbody>
+					<tr>
+						<th>Make</th>
+						<td>@Model.Listing.Car.Make</td>
+					</tr>
+					<tr>
+						<th>Model</th>
+						<td>@Model.Listing.Car.Model</td>
+					</tr>
+					<tr>
+						<th>Horse Power</th>
+						<td>@Model.Listing.Car.HorsePower</td>
+					</tr>
+					<tr>
+						<th>Mileage</th>
+						<td>@Model.Listing.Car.Mileage</td>
+					</tr>
+					<tr>
+						<th>Fuel Type</th>
+						<td>@Model.Listing.Car.FuelType</td>
+					</tr>
+					<tr>
+						<th>Transmittion</th>
+						<td>@Model.Listing.Car.Transmittion</td>
+					</tr>
+					<tr>
+						<th>Color</th>
+						<td>@Model.Listing.Car.Color</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="listing-image-details">
+			<h3 style="font-weight: bold; font-size: 26px;">Допълнителна информация</h3>
+			<hr />
+			<p>@Model.Listing.Description</p>
+		</div>
+		<div class="listing-contact" id="contact">
+			<div class="contact-form">
+				<div class="contact-left">
+					<div class="name">
+						<label for="name">Име: </label><br />
+						<input type="text" placeholder="Име" name="name">
+					</div>
 
-<div>
-    <h4>AuctionListing</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StartingPrice)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StartingPrice)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-    </dl>
+					<div class="email">
+						<label for="email">Имейл: </label><br />
+						<input type="text" placeholder="Имейл" name="email">
+					</div>
+
+					<div class="phone">
+						<label for="phone">Телефон: </label><br />
+						<input type="text" placeholder="Телефон" name="phone">
+					</div>
+				</div>
+
+				<div class="contact-right">
+					<p>Съобщение: </p>
+					<textarea name="msg" id="" rows="5" style="width: 35ch; max-width: 30ch; min-height: 126px;"></textarea>
+					<br />
+					<form action="#" method="post" class="d-flex justify-content-end" style="width: 85%;">
+						<input type="submit" value="Send" class="btn btn-primary" />
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="right">
+		<div class="offer">
+			<div class="offer-cont">
+				<div class="offer-name">
+					<p style="font-size: 35px; font-weight: bold;">@Model.Listing.Name</p>
+				</div>
+				<div class="offer-price">
+					<p style="font-size: 25px;">@Model.HighestBid лв. <br /> <i style="font-size: 15px;">Цената е с включено ДДС</i></p>
+				</div>
+
+				<div class="offer-contact">
+					<a href="#contact">Contanct Us for <br />more information</a>
+				</div>
+				<div class="offer-bid">
+					@{
+						if (DateTime.Now > Model.Listing.StartDateTime)
+						{
+
+							<form asp-action="BidOnItem" method="post">
+								<input type="hidden" value="@Model.Listing.Id" name="ListingId" />
+								<input name="BidPrice" placeholder="Bid"/>
+								<input type="submit" value="Bid" class="btn btn-success" style="transform: scale(0.9)"/>
+								<p class="text-success" style="font-size: 25px;"><i style="font-size: 15px;">Bids should be between 1 and 5000</i></p>
+								<br />
+							</form>
+						}
+						else 
+						{
+							<i class="text-danger">This auction isn't avaiable at the moment!</i>
+							<i class="text-danger">Auction starts: <span class="text-success">@Model.Listing.StartDateTime.ToString("dd/mm/yy HH:mm")</span></i>
+						}
+					}
+				</div>
+			</div>
+			<div class="offer-offset">
+				@if (TempData["BidError"] != null)
+				{
+					<div class="alert alert-danger" style="height: 30px; display:flex; width: 100%; justify-content: center; align-items: center;">@TempData["BidError"]</div>
+				}
+			</div>
+		</div>
+	</div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="listing-details-bottom">
+	@{
+		for(int i = 0; i < Model.allListings.Count; i++)
+		{
+			<a class="listing-item" asp-action="Details" asp-controller="AuctionListings" asp-route-id="@Model.allListings[i].Listing.Id">
+				<div class="listing-item-img">
+					@{
+						var base64_ = Convert.ToBase64String(Model.allListings[i].Listing.Car.Images[0].Data);
+						var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+						<img src="@Image_" />
+					}
+				</div>
+				<div class="listing-item-name">
+					<p>@Model.allListings[i].Listing.Name</p>
+				</div>
+				<div class="listing-item-model">
+					<p>@Model.allListings[i].Listing.Car.Make @Model.allListings[i].Listing.Car.Model</p>
+				</div>
+				<div class="listing-item-price">
+					<p>@Model.allListings[i].HighestBid</p>
+				</div>
+			</a>
+		}
+	}
 </div>
+
+<style>
+	.listing-details-top {
+		display: flex;
+		margin-bottom: 50px;
+	}
+
+	.listing-image-details {
+		width: 80%;
+		border: 1px solid #ccc;
+		border-bottom-width: 3px;
+		border-radius: 3px;
+		padding: 10px;
+	}
+
+	.listing-contact {
+		width: 80%;
+	}
+
+	.contact-form {
+		width: 100%;
+		border: 1px solid #ccc;
+		border-bottom-width: 3px;
+		padding: 10px;
+		display: flex;
+	}
+
+		.contact-form > div {
+			width: 50%;
+			display: flex;
+			justify-content: space-evenly;
+			align-items: flex-start;
+			flex-direction: column;
+		}
+
+		.contact-form .left label {
+			font-size: 13px;
+		}
+
+	.left {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: 60%;
+		gap: 30px;
+	}
+
+	.right {
+		width: 40%;
+	}
+
+	.listing-details-top-image {
+		display: flex;
+		flex-direction: column;
+		width: 80%;
+		margin-top: 35px;
+	}
+
+
+	.details-img-con {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		min-height: 300px;
+	}
+
+		.details-img-con div {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+	.arrow-left, .arrow-right {
+		user-select: none;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		color: black;
+		border: 1px solid black;
+		border-radius: 50%;
+		background-color: white;
+		font-size: 13px;
+		width: 30px;
+		height: 30px;
+		cursor: pointer;
+		transition: color 0.2s linear;
+		transition: background-color 0.2s linear;
+	}
+
+		.arrow-left:hover, .arrow-right:hover {
+			color: white;
+			background-color: black;
+			border: 1px solid black;
+		}
+
+	.details-img-con div img, .details-small-img-con img {
+		aspect-ratio: 16/9;
+		object-fit: cover;
+	}
+
+	#currentImage {
+		width: 100%;
+		height: 100%;
+		transition: transform 0.5s ease-in-out;
+	}
+
+	.small-image {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: 0.3px solid black;
+		aspect-ratio: 16/9;
+		max-width: 100%;
+	}
+
+	.images {
+		width: 80%;
+	}
+
+	.details-small-img-con {
+		display: flex;
+		justify-content: space-evenly;
+		align-self: center;
+		min-height: 100px;
+		gap: 25px;
+		overflow: auto;
+		width: 100%;
+	}
+
+		.details-small-img-con > div {
+			width: 30%;
+			transition: filter 0.15s ease-in;
+			cursor: pointer;
+			min-width: 95px;
+		}
+
+	.small-image img {
+		transition: transform 0.15s ease-in;
+		width: 90%;
+	}
+
+	.small-image:hover img {
+		filter: opacity(0.8);
+		transform: scale(1.075);
+	}
+
+	.listing-image-header {
+		width: 80%;
+	}
+
+	.selected {
+		opacity: 0.8;
+		transform: scale(0.8);
+		transition: all 0.3s ease-in-out;
+		transform: translateX(0);
+	}
+
+	.slide-left {
+		animation: slideLeft 1s ease-in-out;
+	}
+
+	.slide-right {
+		animation: slideRight 1s ease-in-out;
+	}
+
+	.offer {
+		width: 65%;
+		padding: 10px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-evenly;
+		height: 450px;
+		border: 0.6px solid rgb(0, 0, 0, 0.15);
+		border-radius: 8px;
+		position: sticky;
+		top: 20px;
+		min-width: 250px;
+	}
+
+	.offer-cont{
+		display: flex;
+		flex-direction: column;
+		justify-content: space-evenly;
+		height: 390px;
+	}
+	.offer-offset{
+		width: 100%;
+		height: 40px;
+	}
+
+	.listing-details-bottom{
+		display: flex;
+		gap: 15px;
+	}
+
+	@@keyframes slideLeft {
+		0% {
+			transform: translateX(0);
+		}
+
+		50% {
+			transform: translateX(-20%);
+		}
+
+		100% {
+			transform: translateX(0);
+		}
+	}
+
+	@@keyframes slideRight {
+		0% {
+			transform: translateX(0);
+		}
+
+		50% {
+			transform: translateX(20%);
+		}
+
+		100% {
+			transform: translateX(0);
+		}
+	}
+</style>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+	  let images = document.querySelectorAll(".images-small");
+	  let imagesContainer = document.querySelectorAll(".small-image");
+	  let currentImage = document.getElementById("currentImage");
+	  let prevBtn = document.getElementById("prevBtn");
+	  let nextBtn = document.getElementById("nextBtn");
+	  let index = 0;
+	  let isFirstLoad = true;
+
+	  function changeImage(newIndex, direction = "next") {
+		if (images.length == 1) return;
+		if (images.length > 0) {
+		  if (!isFirstLoad) {
+			// Add animation based on direction
+			currentImage.classList.add(direction === "next" ? "slide-right" : "slide-left");
+
+			setTimeout(() => {
+			  updateImage(newIndex);
+
+			  // Remove animation classes after transition
+			  currentImage.classList.remove("slide-left", "slide-right");
+			}, 1000);
+		  } else {
+			updateImage(newIndex);
+			isFirstLoad = false;
+		  }
+		}
+	  }
+
+	  function updateImage(newIndex) {
+		// Remove 'selected' class from all thumbnails
+		images.forEach(img => img.classList.remove("selected"));
+
+		// Update current image source
+		currentImage.src = images[newIndex].src;
+
+		// Add 'selected' class to the new selected thumbnail
+		images[newIndex].classList.add("selected");
+
+		index = newIndex;
+	  }
+
+	  // Click event for thumbnail images
+	  imagesContainer.forEach((img, imgIndex) => {
+		img.addEventListener("click", () => {
+			if (imgIndex < index)
+				changeImage(imgIndex, "prev");
+			else if (imgIndex > index)
+				changeImage(imgIndex, "next");
+		});
+	  });
+
+	  // Navigation button events
+	  nextBtn.addEventListener("click", () => {
+		let newIndex = (index + 1) % images.length;
+		changeImage(newIndex, "next");
+	  });
+
+	  prevBtn.addEventListener("click", () => {
+		let newIndex = (index - 1 + images.length) % images.length;
+		changeImage(newIndex, "prev");
+	  });
+
+	  // Initially set the first image without animation
+	  changeImage(0);
+	});
+</script>

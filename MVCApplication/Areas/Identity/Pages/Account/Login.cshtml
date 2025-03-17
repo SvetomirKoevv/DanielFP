@@ -28,9 +28,6 @@
                 </div>
                 <div>
                     <p>
-                        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                    </p>
-                    <p>
                         <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
                     </p>
                 </div>
@@ -42,3 +39,19 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+
+<style>
+    .login-container{
+        display: flex;
+        justify-content: center;
+    }
+
+    .login-con {
+        width: 45%;
+    }
+
+    #account > * {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+</style>

@@ -7,42 +7,73 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BusinessLayer;
 using DataLayer;
+using MVCApplication.Models;
+using System.Security.Claims;
 
 namespace MVCApplication.Controllers
 {
     public class AuctionListingsController : Controller
     {
-        private readonly RevHausDbContext _context;
+        private readonly AuctionListingContext _context;
+        private readonly BidContext bidsContext;
+        private readonly IdentityContext _identityContext;
 
-        public AuctionListingsController(RevHausDbContext context)
+        public AuctionListingsController
+            (AuctionListingContext context, 
+            BidContext bidsContext_,
+            IdentityContext identityContext)
         {
             _context = context;
+            bidsContext = bidsContext_;
+            _identityContext = identityContext;
         }
 
         // GET: AuctionListings
         public async Task<IActionResult> Index()
         {
-              return _context.AuctionListings != null ? 
-                          View(await _context.AuctionListings.ToListAsync()) :
+              return await _context.ReadAllAsync() != null ? 
+                          View(await _context.ReadAllAsync()) :
                           Problem("Entity set 'RevHausDbContext.AuctionListings'  is null.");
         }
 
         // GET: AuctionListings/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null || _context.AuctionListings == null)
+            if (id == null || await _context.ReadAllAsync() == null)
             {
                 return NotFound();
             }
 
-            var auctionListing = await _context.AuctionListings
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var auctionListing = await _context.ReadAsync(id, true, true);
+
+            Bid highestBid = auctionListing.Bids
+                             .OrderByDescending(b => b.Money)
+                             .FirstOrDefault();
+
             if (auctionListing == null)
             {
                 return NotFound();
             }
 
-            return View(auctionListing);
+            List<AuctionListingWithVBids<AuctionListing>> auctionListingWithVBids = new List<AuctionListingWithVBids<AuctionListing>>();
+
+            foreach(AuctionListing l in (List<AuctionListing>)await _context.ReadAllAsync(true))
+            {
+                if (l == auctionListing) continue;
+
+                Bid hBid = l.Bids.
+                    OrderByDescending(b => b.Money)
+                    .FirstOrDefault();
+
+                auctionListingWithVBids.Add(new AuctionListingWithVBids<AuctionListing>(l, l.Bids, hBid.Money));
+            }            
+
+            ListingAuctionDetailsViewModel viewModel = new ListingAuctionDetailsViewModel();
+            viewModel.allListings = auctionListingWithVBids;
+            viewModel.Listing = auctionListing;
+            viewModel.HighestBid = highestBid.Money;
+
+            return View(viewModel);
         }
 
         // GET: AuctionListings/Create
@@ -56,31 +87,62 @@ namespace MVCApplication.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,StartingPrice,Name,Description")] AuctionListing auctionListing)
+        public async Task<IActionResult> Create(AuctionListingCreateModel auctionModel)
         {
+            Car newCar = new Car(auctionModel.Make, auctionModel.Model, auctionModel.HorsePower, auctionModel.Mileage, auctionModel.FuelType, auctionModel.Transmittion, auctionModel.Color);
+            for (int i = 0; i < auctionModel.FileUpload.FormFile.Count; i++)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await auctionModel.FileUpload.FormFile[i].CopyToAsync(memoryStream);
+
+                    if (memoryStream.Length < 20971520)
+                    {
+                        newCar.Images.Add(new Image(memoryStream.ToArray(), newCar));
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("File", "The file is too large.");
+                    }
+                }
+            }
+            DateTime startDateTime = new DateTime(auctionModel.StartDate.Year, 
+                                                  auctionModel.StartDate.Month, 
+                                                  auctionModel.StartDate.Day, 
+                                                  DateTime.Now.Hour, 
+                                                  DateTime.Now.Minute, 
+                                                  DateTime.Now.Second);
+
+            AuctionListing aListing = new AuctionListing(newCar, auctionModel.StartingPrice, auctionModel.Name, auctionModel.Description, startDateTime, auctionModel.Duration);
+            User loggedInUser = await _identityContext.FindUserByNameAsync(User.Identity.Name);
+            Bid newBid = new Bid(loggedInUser, aListing, aListing.StartingPrice);
+            ModelState.Clear();
             if (ModelState.IsValid)
             {
-                _context.Add(auctionListing);
-                await _context.SaveChangesAsync();
+                await _context.CreateAsync(aListing);
+                await bidsContext.CreateAsync(newBid);
                 return RedirectToAction(nameof(Index));
             }
-            return View(auctionListing);
+            return View(auctionModel);
         }
 
         // GET: AuctionListings/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null || _context.AuctionListings == null)
+            if (id == null || _context.ReadAllAsync() == null)
             {
                 return NotFound();
             }
 
-            var auctionListing = await _context.AuctionListings.FindAsync(id);
+            var auctionListing = await _context.ReadAsync(id, true, true);
             if (auctionListing == null)
             {
                 return NotFound();
             }
-            return View(auctionListing);
+
+            AuctionListingCreateModel model = new AuctionListingCreateModel(auctionListing, auctionListing.Car);
+
+            return View(model);
         }
 
         // POST: AuctionListings/Edit/5
@@ -88,52 +150,59 @@ namespace MVCApplication.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,StartingPrice,Name,Description")] AuctionListing auctionListing)
+        public async Task<IActionResult> Edit(int id, AuctionListingCreateModel editModel)
         {
-            if (id != auctionListing.Id)
+            Car newCar = new Car(editModel.Make, editModel.Model, editModel.HorsePower, editModel.Mileage, editModel.FuelType, editModel.Transmittion, editModel.Color);
+            for (int i = 0; i < editModel.FileUpload.FormFile.Count; i++)
             {
-                return NotFound();
-            }
+                using (var memoryStream = new MemoryStream())
+                {
+                    await editModel.FileUpload.FormFile[i].CopyToAsync(memoryStream);
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(auctionListing);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AuctionListingExists(auctionListing.Id))
+                    if (memoryStream.Length < 20971520)
                     {
-                        return NotFound();
+                        newCar.Images.Add(new Image(memoryStream.ToArray(), newCar));
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError("File", "The file is too large.");
                     }
                 }
+            }
+            AuctionListing newListing = new AuctionListing(newCar, editModel.StartingPrice, editModel.Name, editModel.Description, editModel.StartDate, editModel.Duration);
+            newListing.Id = id;
+            ModelState.Clear();
+            if (ModelState.IsValid)
+            {
+                await _context.UpdateAsync(newListing, true, true);
                 return RedirectToAction(nameof(Index));
             }
-            return View(auctionListing);
+            return View(editModel);
         }
 
         // GET: AuctionListings/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null || _context.AuctionListings == null)
+            if (id == null || await _context.ReadAllAsync() == null)
             {
                 return NotFound();
             }
 
-            var auctionListing = await _context.AuctionListings
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var auctionListing = await _context.ReadAsync(id,true, true);
             if (auctionListing == null)
             {
                 return NotFound();
             }
 
-            return View(auctionListing);
+            List<Bid> allBids = (List<Bid>)await bidsContext.ReadAllAsync(true);
+
+            Bid hBid = auctionListing.Bids.
+                    OrderByDescending(b => b.Money)
+                    .FirstOrDefault();
+
+             AuctionListingWithVBids<AuctionListing> viewModel = new AuctionListingWithVBids<AuctionListing>(auctionListing, allBids, hBid.Money);
+
+            return View(viewModel);
         }
 
         // POST: AuctionListings/Delete/5
@@ -141,23 +210,65 @@ namespace MVCApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.AuctionListings == null)
+            if (_context.ReadAllAsync() == null)
             {
                 return Problem("Entity set 'RevHausDbContext.AuctionListings'  is null.");
             }
-            var auctionListing = await _context.AuctionListings.FindAsync(id);
+            var auctionListing = await _context.ReadAsync(id, true, true);
             if (auctionListing != null)
             {
-                _context.AuctionListings.Remove(auctionListing);
+                await _context.DeleteAsync(auctionListing.Id);
             }
             
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> BidOnItem(BidViewModel biModel)
+        {
+            if (biModel.BidPrice <= 0)
+            {
+                TempData["BidError"] = "Bid must be greater than 0.";
+                return RedirectToAction(nameof(Details), new { id = biModel.ListingId });
+            }
+
+            if (biModel.BidPrice == null)
+            {
+                TempData["BidError"] = "Bid must be greater than 0.";
+                return RedirectToAction(nameof(Details), new { id = biModel.ListingId });
+            }
+
+            if (biModel.BidPrice > 5000)
+            {
+                TempData["BidError"] = "Bid must be less than 5000.";
+                return RedirectToAction(nameof(Details), new { id = biModel.ListingId });
+            }
+
+            User loggedInUser = await _identityContext.FindUserByNameAsync(User.Identity.Name);
+
+            // Get the listing from the database
+            var listing = await _context.ReadAsync(biModel.ListingId, true);
+            if (listing == null)
+            {
+                return NotFound("Listing not found.");
+            }
+
+            List<Bid> allBids = (List<Bid>)await bidsContext.ReadAllAsync(true);  
+
+            Bid highestBid = listing.Bids
+                            .OrderByDescending(b => b.Money)
+                            .FirstOrDefault();
+
+            Bid newBid = new Bid(loggedInUser, listing, highestBid.Money + biModel.BidPrice);
+
+            await bidsContext.CreateAsync(newBid);
+
+            return RedirectToAction(nameof(Details), new { id = biModel.ListingId });
         }
 
         private bool AuctionListingExists(int id)
         {
-          return (_context.AuctionListings?.Any(e => e.Id == id)).GetValueOrDefault();
+            return _context.ReadAsync(id) != null;
         }
     }
 }

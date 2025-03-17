@@ -54,6 +54,8 @@ namespace DataLayer
                 {
                     query = await dBContext.AuctionListings
                             .Include(x => x.Bids)
+                            .Include(x => x.Car)
+                            .Include(x => x.Car.Images)
                             .ToListAsync();
                 }
                 return query;
@@ -73,6 +75,8 @@ namespace DataLayer
                 {
                     auction = await dBContext.AuctionListings
                             .Include(x => x.Bids)
+                            .Include(x => x.Car)
+                            .Include(x => x.Car.Images)
                             .FirstOrDefaultAsync(x => x.Id == key);
                 }
                 return auction;
@@ -93,9 +97,10 @@ namespace DataLayer
 
                 auctionFromDb.Car = item.Car;
                 auctionFromDb.StartingPrice = item.StartingPrice;
-                auctionFromDb.Bids = item.Bids;
                 auctionFromDb.Name = item.Name;
                 auctionFromDb.Description = item.Description;
+                auctionFromDb.StartDateTime = item.StartDateTime;
+                auctionFromDb.DurationInHours = item.DurationInHours;
                
                 await dBContext.SaveChangesAsync();
             }

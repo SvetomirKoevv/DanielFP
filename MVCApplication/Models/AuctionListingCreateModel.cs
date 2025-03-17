@@ -13,7 +13,7 @@ namespace MVCApplication.Models
         public string Description { get; set; }
 
         [Required]
-        public decimal StartingPrice { get; set; }
+        public int StartingPrice { get; set; }
 
         [Required]
         public string Make { get; set; }
@@ -26,6 +26,12 @@ namespace MVCApplication.Models
 
         [Required]
         public int Mileage { get; set; }
+
+        [Required]
+        public DateTime StartDate { get; set; }
+
+        [Required]
+        public int Duration { get; set; }
 
         [Required]
         public FuelType FuelType { get; set; }
@@ -53,7 +59,9 @@ namespace MVCApplication.Models
             this.Name = listing.Name;
             this.Description = listing.Description;
             this.StartingPrice = listing.StartingPrice;
-
+            this.StartDate = listing.StartDateTime;
+            this.Duration = listing.DurationInHours;
+         
             this.Model = car.Model;
             this.Make = car.Make;
             this.HorsePower = car.HorsePower;
@@ -64,3 +72,4 @@ namespace MVCApplication.Models
         }
     }
 }
+

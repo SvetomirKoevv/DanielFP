@@ -17,9 +17,10 @@ namespace MVCApplication.Controllers
         private readonly ListingContext _context;
         private readonly IdentityContext _identityContext;
 
-        public ListingsController(ListingContext context)
+        public ListingsController(ListingContext context, IdentityContext identityContext)
         {
             _context = context;
+            _identityContext = identityContext;
         }
 
         // GET: Listings
@@ -33,21 +34,17 @@ namespace MVCApplication.Controllers
         // GET: Listings/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            if (id == null || _context.ReadAllAsync == null)
+            if (id == null || await _context.ReadAllAsync() == null)
             {
                 return NotFound();
             }
 
-            var listing = await _context.ReadAsync(id, true, true);
-
-            if (listing == null)
-            {
-                return NotFound();
-            }
+            Listing listingFromDb = await _context.ReadAsync(id);
 
             ListingDetailsViewModel viewModel = new ListingDetailsViewModel();
-            viewModel.allListings = (List<Listing>)await _context.ReadAllAsync();
-            viewModel.Listing = listing;
+            viewModel.Listing = listingFromDb;
+            viewModel.allListings = (List<Listing>)await _context.ReadAllAsync(true, true);
+            viewModel.allListings.Remove(listingFromDb);
 
             return View(viewModel);
         }
@@ -165,9 +162,29 @@ namespace MVCApplication.Controllers
         [HttpPost, ActionName("FavouriteItem")]
         public async Task<IActionResult> FavouriteItem(ListingDetailsViewModel model)
         {
-            //User loggedInUser = await _identityContext.FindUserByNameAsync(User.Identity.Name);
-            int id = model.Listing.Id;
-            return RedirectToAction(nameof(Details), new { Id = id });
+            var loggedInUser = await _identityContext.FindUserByNameAsync(User.Identity.Name);
+
+            if (loggedInUser == null)
+            {
+                return Unauthorized(); // Handle case where user is not found
+            }
+
+            // Get the listing
+            var listing = await _context.ReadAsync(model.Listing.Id);
+            if (listing == null)
+            {
+                return NotFound(); // Handle case where listing doesn't exist
+            }
+
+            // Add to favorites if not already there
+            if (!loggedInUser.Listings.Contains(listing))
+            {
+                loggedInUser.Listings.Add(listing);
+                await _identityContext.UpdateAsync(loggedInUser);
+            }
+
+            return RedirectToAction(nameof(Details), new { Id = model.Listing.Id });
         }
+
     }
 }

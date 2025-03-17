@@ -22,7 +22,7 @@ namespace BusinessLayer
         public string Description { get; set; }
 
         [Required]
-        public decimal Price { get; set; }
+        public int Price { get; set; }
 
         public List<User> Users { get; set; }
 
@@ -31,7 +31,7 @@ namespace BusinessLayer
             Users = new List<User>();
         }
 
-        public Listing(string name_, string description_, decimal price_) 
+        public Listing(string name_, string description_, int price_) 
         {
             Name = name_;
             Description = description_;

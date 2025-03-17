@@ -55,6 +55,8 @@ namespace DataLayer
                 {
                     query = await dBContext.Listings
                             .Include(x => x.Users)
+                            .Include(x => x.Car)
+                            .Include(x => x.Car.Images)
                             .ToListAsync();
                 }
                 return query;
