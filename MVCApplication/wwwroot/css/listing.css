@@ -47,6 +47,7 @@
 }
     .listing-item-img img {
         aspect-ratio: 16/9;
+        object-fit: cover;
         width: 97%;
         height: auto;
         border-radius: 5px;

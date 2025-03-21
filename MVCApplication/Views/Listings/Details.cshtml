@@ -140,7 +140,7 @@
 	@{
 		for (int i = 0; i < Model.allListings.Count; i++)
 		{
-			<a class="listing-item" asp-action="Details" asp-controller="AuctionListings" asp-route-id="@Model.allListings[i].Id">
+			<a class="listing-item" asp-action="Details" asp-controller="Listings" asp-route-id="@Model.allListings[i].Id">
 				<div class="listing-item-img">
 					@{
 						var base64_ = Convert.ToBase64String(Model.allListings[i].Car.Images[0].Data);
@@ -327,7 +327,8 @@
 		flex-direction: column;
 		justify-content: space-evenly;
 		height: 400px;
-		border: 0.6px solid black;
+		border: 0.6px solid rgb(0, 0, 0, 0.15);
+		border-radius: 8px;
 		position: sticky;
 		top: 20px;
 		min-width: 250px;

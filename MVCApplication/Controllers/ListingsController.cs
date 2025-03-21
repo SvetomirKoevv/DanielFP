@@ -9,6 +9,7 @@ using BusinessLayer;
 using DataLayer;
 using MVCApplication.Models;
 using Microsoft.VisualBasic;
+using Microsoft.AspNetCore.Identity;
 
 namespace MVCApplication.Controllers
 {
@@ -16,11 +17,13 @@ namespace MVCApplication.Controllers
     {
         private readonly ListingContext _context;
         private readonly IdentityContext _identityContext;
+        private readonly UserManager<User> _userManager;
 
-        public ListingsController(ListingContext context, IdentityContext identityContext)
+        public ListingsController(ListingContext context, IdentityContext identityContext, UserManager<User> userManager)
         {
             _context = context;
             _identityContext = identityContext;
+            _userManager = userManager;
         }
 
         // GET: Listings
@@ -162,13 +165,14 @@ namespace MVCApplication.Controllers
         [HttpPost, ActionName("FavouriteItem")]
         public async Task<IActionResult> FavouriteItem(ListingDetailsViewModel model)
         {
-            var loggedInUser = await _identityContext.FindUserByNameAsync(User.Identity.Name);
-
-            if (loggedInUser == null)
+            User user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                return Unauthorized(); // Handle case where user is not found
+                return Unauthorized();
             }
 
+            User loggedInUser = await _identityContext.ReadUserAsync(user.Id, true);
+            
             // Get the listing
             var listing = await _context.ReadAsync(model.Listing.Id);
             if (listing == null)
@@ -184,6 +188,39 @@ namespace MVCApplication.Controllers
             }
 
             return RedirectToAction(nameof(Details), new { Id = model.Listing.Id });
+        }
+
+        [HttpPost, ActionName("UnFavouriteItem")]
+        public async Task<IActionResult> UnFavouriteItem(int listingId)
+        {
+            User user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            User loggedInUser = await _identityContext.ReadUserAsync(user.Id, true);
+
+            // Get the listing
+            var listing = await _context.ReadAsync(listingId);
+            if (listing == null)
+            {
+                return NotFound(); // Handle case where listing doesn't exist
+            }
+
+            // Add to favorites if not already there
+            if (loggedInUser.Listings.Contains(listing))
+            {
+                loggedInUser.Listings.Remove(listing);
+                await _identityContext.UpdateAsync(loggedInUser);
+            }
+            var refererUrl = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrEmpty(refererUrl))
+            {
+                return Redirect(refererUrl);
+            }
+            return RedirectToAction(nameof(Details), new { Id = listingId });
+
         }
 
     }
