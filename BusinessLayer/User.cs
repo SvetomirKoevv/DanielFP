@@ -11,9 +11,12 @@ namespace BusinessLayer
     {
         public List<Listing> Listings { get; set; }
 
+        public List<Bid> Bids { get; set; }
+
         public User() 
         {
             Listings = new List<Listing>();
+            Bids = new List<Bid>();
         }
 
         public User(string username_, string email_)
@@ -22,6 +25,7 @@ namespace BusinessLayer
             Email = email_;
 
             Listings = new List<Listing>();
+            Bids = new List<Bid>();
         }
         
     }

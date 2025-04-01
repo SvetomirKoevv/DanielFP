@@ -50,9 +50,17 @@ namespace DataLayer.Migrations
                     b.Property<int>("StartingPrice")
                         .HasColumnType("int");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WinnerId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CarId");
+
+                    b.HasIndex("WinnerId");
 
                     b.ToTable("AuctionListings");
                 });
@@ -392,7 +400,13 @@ namespace DataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BusinessLayer.User", "Winner")
+                        .WithMany()
+                        .HasForeignKey("WinnerId");
+
                     b.Navigation("Car");
+
+                    b.Navigation("Winner");
                 });
 
             modelBuilder.Entity("BusinessLayer.Bid", b =>

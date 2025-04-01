@@ -9,15 +9,15 @@
     border-radius: 5px;
     padding: 3px;
     cursor: pointer;
-    transition: opacity 0.16s ease-in-out;
+    transition: border-color 0.16s ease-in-out;
     text-decoration: none;
     color: black;
 }
 
     .listing-item:hover {
-        opacity: 0.9;
         text-decoration: none;
         color: black;
+        border-color: black;
     }
 
     .listing-item > div {
@@ -47,6 +47,7 @@
 }
     .listing-item-img img {
         aspect-ratio: 16/9;
+        object-fit: cover;
         width: 97%;
         height: auto;
         border-radius: 5px;

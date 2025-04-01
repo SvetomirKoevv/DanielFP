@@ -32,10 +32,6 @@ namespace MVCApplication.Areas.Identity.Pages.Account.Manage
 
         public string Email { get; set; }
 
-        public byte[] ProfilePicture_ { get; set; }
-
-        [BindProperty]
-        public bool RemoveProfilePicture { get; set; }
 
         [TempData]
         public string StatusMessage { get; set; }

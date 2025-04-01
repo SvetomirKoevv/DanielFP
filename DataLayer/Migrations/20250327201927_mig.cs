@@ -184,11 +184,18 @@ namespace DataLayer.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StartDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DurationInHours = table.Column<int>(type: "int", nullable: false)
+                    DurationInHours = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    WinnerId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AuctionListings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AuctionListings_AspNetUsers_WinnerId",
+                        column: x => x.WinnerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AuctionListings_Cars_CarId",
                         column: x => x.CarId,
@@ -335,6 +342,11 @@ namespace DataLayer.Migrations
                 column: "CarId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuctionListings_WinnerId",
+                table: "AuctionListings",
+                column: "WinnerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Bids_AuctionListingId",
                 table: "Bids",
                 column: "AuctionListingId");
@@ -393,10 +405,10 @@ namespace DataLayer.Migrations
                 name: "AuctionListings");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Listings");
 
             migrationBuilder.DropTable(
-                name: "Listings");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Cars");

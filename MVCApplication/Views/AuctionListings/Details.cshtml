@@ -1,4 +1,6 @@
-﻿@model ListingAuctionDetailsViewModel
+﻿@using MVCApplication.Services
+@model ListingAuctionDetailsViewModel
+@inject AuctionService service;
 
 <div class="listing-details-top">
 	<div class="left">
@@ -112,31 +114,52 @@
 			<div class="offer-cont">
 				<div class="offer-name">
 					<p style="font-size: 35px; font-weight: bold;">@Model.Listing.Name</p>
+					@{
+						if (Model.Listing.Status == BusinessLayer.AuctionStatus.Ongoing)
+						{
+							<p>Status: <span style="color: green;">[@Model.Listing.Status]</span></p>
+						}
+						else if (Model.Listing.Status == BusinessLayer.AuctionStatus.Closed)
+						{
+							<p>Status: <span style="color: red;">[@Model.Listing.Status]</span></p>
+						}
+						else
+						{
+							<p>Status: <span style="color: darkorange;">[@Model.Listing.Status]</span></p>
+						}
+					}
 				</div>
 				<div class="offer-price">
 					<p style="font-size: 25px;">@Model.HighestBid лв. <br /> <i style="font-size: 15px;">Цената е с включено ДДС</i></p>
 				</div>
 
 				<div class="offer-contact">
-					<a href="#contact">Contanct Us for <br />more information</a>
+					<a href="#contact">Contanct Us <br />for more information</a>
 				</div>
 				<div class="offer-bid">
 					@{
-						if (DateTime.Now > Model.Listing.StartDateTime)
+						if (DateTime.Now > Model.Listing.StartDateTime && DateTime.Now < Model.Listing.StartDateTime.AddHours(Model.Listing.DurationInHours))
 						{
 
-							<form asp-action="BidOnItem" method="post">
+							<form asp-action="BidOnItem" method="post" style="display: flex;flex-direction: column;gap: 10px;padding-top: 10px;">
 								<input type="hidden" value="@Model.Listing.Id" name="ListingId" />
-								<input name="BidPrice" placeholder="Bid"/>
-								<input type="submit" value="Bid" class="btn btn-success" style="transform: scale(0.9)"/>
+								<i id="countdown" style="color: red; margin-top: 10px; margin-bottom: 10px;"></i>
+								<div class="d-flex">
+									<input name="BidPrice" placeholder="Bid" style="width:auto;"/>
+									<input type="submit" value="Bid" class="btn btn-success" style="width: 25%; margin-left: 5px;"/>
+								</div>
 								<p class="text-success" style="font-size: 25px;"><i style="font-size: 15px;">Bids should be between 1 and 5000</i></p>
 								<br />
 							</form>
 						}
-						else 
+						else if (DateTime.Now < Model.Listing.StartDateTime)
 						{
 							<i class="text-danger">This auction isn't avaiable at the moment!</i>
 							<i class="text-danger">Auction starts: <span class="text-success">@Model.Listing.StartDateTime.ToString("dd/mm/yy HH:mm")</span></i>
+						}
+						else
+						{
+							<i class="text-danger">This auction has ended</i>
 						}
 					}
 				</div>
@@ -154,24 +177,27 @@
 	@{
 		for(int i = 0; i < Model.allListings.Count; i++)
 		{
-			<a class="listing-item" asp-action="Details" asp-controller="AuctionListings" asp-route-id="@Model.allListings[i].Listing.Id">
-				<div class="listing-item-img">
-					@{
-						var base64_ = Convert.ToBase64String(Model.allListings[i].Listing.Car.Images[0].Data);
-						var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
-						<img src="@Image_" />
-					}
-				</div>
-				<div class="listing-item-name">
-					<p>@Model.allListings[i].Listing.Name</p>
-				</div>
-				<div class="listing-item-model">
-					<p>@Model.allListings[i].Listing.Car.Make @Model.allListings[i].Listing.Car.Model</p>
-				</div>
-				<div class="listing-item-price">
-					<p>@Model.allListings[i].HighestBid</p>
-				</div>
-			</a>
+			if (Model.allListings[i].Listing.Status != BusinessLayer.AuctionStatus.Closed)
+			{
+				<a class="listing-item" asp-action="Details" asp-controller="AuctionListings" asp-route-id="@Model.allListings[i].Listing.Id">
+					<div class="listing-item-img">
+						@{
+							var base64_ = Convert.ToBase64String(Model.allListings[i].Listing.Car.Images[0].Data);
+							var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+							<img src="@Image_" />
+						}
+					</div>
+					<div class="listing-item-name">
+						<p>@Model.allListings[i].Listing.Name</p>
+					</div>
+					<div class="listing-item-model">
+						<p>@Model.allListings[i].Listing.Car.Make @Model.allListings[i].Listing.Car.Model</p>
+					</div>
+					<div class="listing-item-price">
+						<p>@Model.allListings[i].HighestBid BGN</p>
+					</div>
+				</a>
+			}
 		}
 	}
 </div>
@@ -466,4 +492,36 @@
 	  // Initially set the first image without animation
 	  changeImage(0);
 	});
+
+	// Pass values from C# to JavaScript
+		let startDateTime = new Date("@Html.Raw(Model.Listing.StartDateTime.ToString("yyyy-MM-ddTHH:mm:ss"))"); 
+
+		let durationInHours = @Model.Listing.DurationInHours;
+
+		// Calculate auction end time
+		let auctionEndTime = new Date(startDateTime.getTime() + durationInHours * 60 * 60 * 1000);
+
+		function updateCountdown() {
+			let now = new Date();
+			let timeLeft = auctionEndTime - now;
+
+			if (timeLeft <= 0) {
+				document.getElementById("countdown").innerText = "Auction Ended";
+				clearInterval(timer);
+				@{service.CloseExpiredAuctions();}
+				location.reload();
+				return;
+			}
+
+			let hours = Math.floor(timeLeft / (1000 * 60 * 60));
+			let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+			let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+			document.getElementById("countdown").innerText =
+				`Time Left: ${hours}h ${minutes}m ${seconds}s`;
+		}
+
+		// Update countdown every second
+		let timer = setInterval(updateCountdown, 1000);
+		updateCountdown(); // Call once immediately
 </script>

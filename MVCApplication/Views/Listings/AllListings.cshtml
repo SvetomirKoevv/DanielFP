@@ -1,0 +1,55 @@
+﻿@using BusinessLayer
+@model AllListingsFilteredModel;
+
+@{
+	ViewData["Title"] = "All Listings";
+}
+
+<form asp-action="AllListings" asp-controller="Listings" method="get">
+	@Html.Partial("_FiltersPartial", Model.FilterModel)
+</form>
+
+@{
+	if (Model.Listings.Count == 0)
+	{
+		<div style="padding: 10px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center;">
+			No items found for the selected filters.
+		</div>
+
+	}
+	else
+	{
+		<div class="all-listings-con">
+			@{
+				for (int i = 0; i < Model.Listings.Count; i++)
+				{
+					<a class="listing-item" asp-action="Details" asp-controller="Listings" asp-route-id="@Model.Listings[i].Id">
+						<div class="listing-item-img">
+							@{
+								var base64_ = Convert.ToBase64String(Model.Listings[i].Car.Images[0].Data);
+								var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+								<img src="@Image_" />
+							}
+						</div>
+						<div class="listing-item-name">
+							<p>@Model.Listings[i].Name</p>
+						</div>
+						<div class="listing-item-model">
+							<p>@Model.Listings[i].Car.Make @Model.Listings[i].Car.Model</p>
+						</div>
+					</a>
+				}
+			}
+		</div>
+	}
+}
+
+<style>
+	.all-listings-con {
+		width: 100%;	
+		display: flex;
+		justify-content: flex-start;
+		gap: 30px;
+		align-items: center;
+	}
+</style>

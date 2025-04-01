@@ -1,0 +1,84 @@
+﻿@page "{filter?}"
+@model MVCApplication.Areas.Identity.Pages.Account.Manage.AuctionsModel
+@using BusinessLayer;
+
+@{
+    ViewData["Title"] = "Your Auctions";
+}
+
+<ul class="w-100 d-flex justify-content-center gap-2" style="list-style:none;">
+    <li>
+        <a class="page-switch @(Model.PageType == "all" ? "page-active" : "")" href="?filter=all">All Participations</a>
+    </li>
+    <li>
+        <a class="page-switch @(Model.PageType == "won" ? "page-active" : "")" href="?filter=won">Auctions Won</a>
+    </li>
+
+</ul>
+<div class="w-100 d-flex justify-content-center">
+    <hr class="w-75" />
+</div>
+<div class="d-flex gap-1 flex-wrap">
+    @{
+        foreach(AuctionListing listing in Model.DisplayListings)
+        {
+            <a class="listing-item" asp-action="Details" asp-controller="AuctionListings" asp-route-id="@listing.Id">
+                <div class="listing-item-img">
+                    @{
+                        var base64_ = Convert.ToBase64String(listing.Car.Images[0].Data);
+                        var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+                        <img src="@Image_" />
+                    }
+                </div>
+                <div class="listing-item-name">
+                    <p>@listing.Name</p>
+                </div>
+                <div class="listing-item-model">
+                    <p>@listing.Car.Make @listing.Car.Model</p>
+                </div>
+            </a>
+        }
+    }
+</div>
+<style>
+    .page-switch {
+        position: relative;
+        text-decoration: none;
+        color: grey;
+        letter-spacing: 2.5px;
+        font-size: 18px;
+        margin: 0 5px;
+        text-transform: uppercase;  
+    }
+
+    .page-switch:hover{
+        color: #616161;
+    }
+
+    .page-active{
+        color: #616161;
+    }
+
+    .page-active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 1px;
+        background: #616161;
+        transform: scaleX(0);
+        transform-origin: left;
+        animation: underlineAppear 0.3s ease-in-out forwards;
+    }
+
+    @@keyframes underlineAppear {
+        0% {
+            transform: scaleX(0);
+        }
+
+        100% {
+            transform: scaleX(1);
+        }
+    }
+</style>

@@ -9,6 +9,11 @@ using BusinessLayer;
 using DataLayer;
 using MVCApplication.Models;
 using Microsoft.VisualBasic;
+using System.Text.Json;
+using Microsoft.AspNetCore.DataProtection.XmlEncryption;
+using MVCApplication.Managers;
+using SendGrid;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MVCApplication.Controllers
 {
@@ -23,10 +28,116 @@ namespace MVCApplication.Controllers
             _identityContext = identityContext;
         }
 
+        // GET: AllListings
+
+        public async Task<IActionResult> AllListings(FilterModel filters)
+        {
+            IEnumerable<Listing> allListings = await _context.ReadAllAsync(true);
+
+            if (filters.isNull)
+            {
+                foreach (Listing listing in allListings)
+                {
+                    filters.Makes.Add(listing.Car.Make);
+                    filters.Fuels.Add(listing.Car.FuelType.ToString());
+                    filters.Transmitions.Add(listing.Car.Transmittion.ToString());
+                    filters.Colors.Add(listing.Car.Color.ToString());
+                }
+                filters.Makes = filters.Makes.Distinct().ToList();
+                filters.Fuels = filters.Fuels.Distinct().ToList();
+                filters.Transmitions = filters.Transmitions.Distinct().ToList();
+                filters.Colors = filters.Colors.Distinct().ToList();
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(filters.ModelsJson))
+                {
+                    filters.Models = JsonSerializer.Deserialize<List<string>>(filters.ModelsJson);
+                }
+                if (!string.IsNullOrEmpty(filters.MakesJson))
+                {
+                    filters .Makes = JsonSerializer.Deserialize<List<string>>(filters.MakesJson);
+                }
+                if (!string.IsNullOrEmpty(filters.TransmitionsJson))
+                {
+                    filters.Transmitions = JsonSerializer.Deserialize<List<string>>(filters.TransmitionsJson);
+                }
+                if (!string.IsNullOrEmpty(filters.ColorsJson))
+                {
+                    filters.Colors = JsonSerializer.Deserialize<List<string>>(filters.ColorsJson);
+                }
+                if (!string.IsNullOrEmpty(filters.FuelsJson))
+                {
+                    filters.Fuels = JsonSerializer.Deserialize<List<string>>(filters.FuelsJson);
+                }
+
+                if (filters.Make == null)
+                {
+                    foreach (Listing listing in allListings)
+                    {
+                        filters.Makes.Add(listing.Car.Make);
+                    }
+                    filters.Makes = filters.Makes.Distinct().ToList();
+                }
+                else
+                {
+                    foreach (Listing listing in allListings)
+                    {
+                        filters.Models.Clear();
+                        if (listing.Car.Make == filters.Make)
+                        {
+                            filters.Models.Add(listing.Car.Model);
+                        }
+                        filters.Models = filters.Models.Distinct().ToList();
+                    }
+                }
+            }
+
+            List<Listing> filteredListings = new List<Listing>();
+
+            foreach (Listing l in allListings)
+            {
+                if (filters.Model != null && filters.Model != l.Car.Model)
+                    continue;
+                if (filters.Make != null && filters.Make != l.Car.Make)
+                    continue;
+                if (filters.Transmition != null && filters.Transmition != l.Car.Transmittion.ToString())
+                    continue;
+                if (filters.Fuel != null && filters.Fuel != l.Car.FuelType.ToString())
+                    continue;
+                if (filters.Color != null && filters.Color != l.Car.Color.ToString())
+                    continue;
+                if (l.Price < filters.MinPrice || l.Price > filters.MaxPrice)
+                    continue;
+                if (l.Car.Mileage < filters.MinMilliage || l.Car.Mileage > filters.MaxMilliage)
+                    continue;
+                if (l.Car.HorsePower < filters.MinPower || l.Car.HorsePower > filters.MaxPower)
+                    continue;
+
+                filteredListings.Add(l);
+            }
+
+            int sortIndex = filters.SortTypes.IndexOf(filters.SortType);
+
+            switch (sortIndex)
+            {
+                case 0: break;
+                case 1: filteredListings.Reverse(); break;
+                case 2: filteredListings = filteredListings.OrderBy(x => x.Price).ToList(); break;
+                case 3: filteredListings = filteredListings.OrderByDescending(x => x.Price).ToList(); break;
+            }
+
+
+            AllListingsFilteredModel viewModel = new AllListingsFilteredModel(filteredListings, filters);
+
+            return View(viewModel);
+        }
+
         // GET: Listings
         public async Task<IActionResult> Index()
         {
-            IEnumerable<Listing> mazna = await _context.ReadAllAsync();
+            IEnumerable<Listing> mazna = await _context.ReadAllAsync(true);
+            
 
             return View(mazna);
         }
@@ -162,7 +273,7 @@ namespace MVCApplication.Controllers
         [HttpPost, ActionName("FavouriteItem")]
         public async Task<IActionResult> FavouriteItem(ListingDetailsViewModel model)
         {
-            var loggedInUser = await _identityContext.FindUserByNameAsync(User.Identity.Name);
+            var loggedInUser = await _identityContext.FindUserByNameAsync(User.Identity.Name, true);
 
             if (loggedInUser == null)
             {
@@ -184,6 +295,32 @@ namespace MVCApplication.Controllers
             }
 
             return RedirectToAction(nameof(Details), new { Id = model.Listing.Id });
+        }
+
+        [HttpPost, ActionName("SendEmail")]
+        public async Task<IActionResult> SendEmail(ListingDetailsViewModel modelA)
+        {
+            Response res = await EmailSenderManager.SendEmailAsync(modelA.ContactForm.Email, modelA.ContactForm.Username, modelA.ContactForm.Subject, modelA.ContactForm.Body);
+            if (res.IsSuccessStatusCode)
+            {
+                return RedirectToAction(nameof(SuccessfulContact), new { returnId = modelA.Listing.Id });
+            }
+            else
+            {
+                return RedirectToAction(nameof(UnSuccessfulContact), new { returnId = modelA.Listing.Id });
+            }
+        }
+
+        [Authorize(Roles = "Administrator, User")]
+        public async Task<IActionResult> SuccessfulContact(int returnId)
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "Administrator, User")]
+        public async Task<IActionResult> UnSuccessfulContact(int returnId)
+        {
+            return View();
         }
 
     }

@@ -1,0 +1,110 @@
+﻿@page
+@model MVCApplication.Areas.Identity.Pages.Account.Manage.FavouriteListingsModel
+<div class="d-flex gap-1 w-100">
+    @{
+        if (Model.FavouriteListings.Count == 0)
+        {
+            <div class="d-flex justify-content-center w-100">
+                <div style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 20px;
+        background-color: #fafafa;
+        text-align: center;
+        font-family: 'Inter', 'Poppins', sans-serif;
+        color: #444;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+
+                    <p style="margin-top: 12px; font-size: 17px; font-weight: 500;font-family: 'Inter', 'Poppins', sans-serif;">No favorite items yet</p>
+                </div>
+
+            </div>
+
+        }
+        else
+        {
+            for (int i = 0; i < Model.FavouriteListings.Count; i++)
+            {
+                <div class="listing-item offer-con">
+                    <form asp-controller="Listings" asp-action="UnFavouriteItem" method="post" style="display: inline;">
+                        <input type="hidden" name="listingId" value="@Model.FavouriteListings[i].Id" />
+                        <button type="submit" class="unfav" style="background: none; border: none; padding: 0;">
+                            <img src="~/star_normal.png" class="fav-images" />
+                        </button>
+                    </form>
+
+
+                    <a asp-action="Details" asp-controller="Listings" asp-route-id="@Model.FavouriteListings[i].Id">
+
+                        <div class="listing-item-img">
+                            @{
+                                var base64_ = Convert.ToBase64String(Model.FavouriteListings[i].Car.Images[0].Data);
+                                var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+                                <img src="@Image_" />
+                            }
+                        </div>
+                        <div class="listing-item-name">
+                            <p>@Model.FavouriteListings[i].Name</p>
+                        </div>
+                        <div class="listing-item-model">
+                            <p>@Model.FavouriteListings[i].Car.Make @Model.FavouriteListings[i].Car.Model</p>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+    }
+</div>
+
+<style>
+    .unfav {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 40px;
+        height: 40px;
+        z-index: 1;
+        opacity: 0;
+    }
+
+        .unfav > img {
+            transform: scale(0.95);
+        }
+
+    .offer-con {
+        position: relative;
+        z-index: 0;
+    }
+
+        .offer-con > * {
+            text-decoration: none !important;
+            color: black !important;
+        }
+
+        .offer-con:hover .unfav {
+            opacity: 1;
+        }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    var allImages = document.querySelectorAll('.fav-images');
+    allImages.forEach(x => {
+    x.addEventListener('mouseover', function() {
+    x.src = "/star_normal.png";
+    });
+    x.addEventListener('mouseout', function() {
+    x.src = "/star_hover.png";
+    });
+    console.log("mazna");
+    })
+    });
+</script>

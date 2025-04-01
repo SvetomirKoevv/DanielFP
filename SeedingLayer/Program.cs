@@ -28,8 +28,10 @@ namespace SeedingLayer
 
                 DbContextOptionsBuilder builder = new DbContextOptionsBuilder();
                 builder.UseSqlServer(
-                    "Server=DESKTOP-G098CJK\\SQLEXPRESS;Database=RevHaus;Trusted_Connection=True;"
-                    );
+                    // Daniel - Server=DESKTOP-G098CJK\\SQLEXPRESS;Database=RevHaus;Trusted_Connection=True;
+                    // PC - Server=DESKTOP-RD8LV0K;Database=RevHaus;Trusted_Connection=True;
+                    "Server=DESKTOP-RD8LV0K;Database=RevHaus2;Trusted_Connection=True;"
+                );
 
                 RevHausDbContext dbContext = new RevHausDbContext(builder.Options);
 
@@ -51,7 +53,7 @@ namespace SeedingLayer
 
 
 
-                User user = new User("admin", "admin@emil.bg");
+                User user = new User("admin", "admin@email.bg");
                 IdentityResult res = await userManager.CreateAsync(user, "admin");
                 await userManager.AddToRoleAsync(user, Role.Administrator.ToString());
 

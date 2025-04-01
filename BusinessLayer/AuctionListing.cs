@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +29,12 @@ namespace BusinessLayer
         public DateTime StartDateTime { get; set; } 
 
         [Required]
-        public int DurationInHours { get; set; }    
+        public int DurationInHours { get; set; }
+
+        [Required]
+        public AuctionStatus Status { get; set; }
+
+        public User Winner { get; set; }
 
         public List<Bid> Bids { get; set; }
 
@@ -51,6 +57,15 @@ namespace BusinessLayer
             Description = description_;
             StartDateTime = startDateTime_;
             DurationInHours = durationInHours_;
+
+            if (StartDateTime < DateTime.Now)
+            {
+                Status = AuctionStatus.Ongoing;
+            }
+            else if (StartDateTime > DateTime.Now)
+            {
+                Status = AuctionStatus.Unstarted;
+            }
 
             Bids = new List<Bid>();
         }

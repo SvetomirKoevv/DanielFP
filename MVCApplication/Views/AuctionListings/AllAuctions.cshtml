@@ -1,0 +1,59 @@
+﻿@using BusinessLayer
+@model AllAuctionListingsModel;
+
+@{
+	ViewData["Title"] = "All Auctions";
+}
+
+<form asp-action="AllAuctions" asp-controller="AuctionListings" method="get">
+	@Html.Partial("_FiltersPartial", Model.FilterModel)
+</form>
+
+
+@{
+	if (Model.AuctionListings.Count == 0)
+	{
+		<div style="padding: 10px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center;">
+			No items found for the selected filters.
+		</div>
+
+	}
+	else
+	{
+		<div class="all-listings-con">
+		@{
+			for (int i = 0; i < Model.AuctionListings.Count; i++)
+			{
+				if (Model.AuctionListings[i].Status == AuctionStatus.Ongoing)
+				{
+					<a class="listing-item" asp-action="Details" asp-controller="AuctionListings" asp-route-id="@Model.AuctionListings[i].Id">
+						<div class="listing-item-img">
+							@{
+								var base64_ = Convert.ToBase64String(Model.AuctionListings[i].Car.Images[0].Data);
+								var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+								<img src="@Image_" />
+							}
+						</div>
+						<div class="listing-item-name">
+							<p>@Model.AuctionListings[i].Name</p>
+						</div>
+						<div class="listing-item-model">
+							<p>@Model.AuctionListings[i].Car.Make @Model.AuctionListings[i].Car.Model</p>
+						</div>
+					</a>
+				}
+			}
+			
+		}
+		</div>
+	}
+}
+
+<style>
+	.all-listing-con {
+		width: 100%;
+		display: flex;
+		justify-content: space-evenly;
+		align-items: center;
+	}
+</style>

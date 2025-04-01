@@ -18,11 +18,17 @@ namespace DataLayer
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+
+            // Daniel - Server=DESKTOP-G098CJK\\SQLEXPRESS;Database=RevHaus;Trusted_Connection=True;
+            // PC - Server=DESKTOP-RD8LV0K;Database=RevHaus;Trusted_Connection=True;
+
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=DESKTOP-G098CJK\\SQLEXPRESS;Database=RevHaus;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=DESKTOP-RD8LV0K;Database=RevHaus2;Trusted_Connection=True;");
             }
             base.OnConfiguring(optionsBuilder);
+
+
         }
 
         public DbSet<AuctionListing> AuctionListings { get; set; }

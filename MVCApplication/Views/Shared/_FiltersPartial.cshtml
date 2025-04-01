@@ -1,0 +1,132 @@
+﻿@using System.Text.Json
+@model FilterModel
+
+<div class="filter-con">
+    <input type="hidden" asp-for="isNull" value="false" />
+    <input type="hidden" asp-for="ModelsJson" value='@JsonSerializer.Serialize(Model.Models)' />
+    <input type="hidden" asp-for="MakesJson" value='@JsonSerializer.Serialize(Model.Makes)' />
+    <input type="hidden" asp-for="TransmitionsJson" value='@JsonSerializer.Serialize(Model.Transmitions)' />
+    <input type="hidden" asp-for="ColorsJson" value='@JsonSerializer.Serialize(Model.Colors)' />
+    <input type="hidden" asp-for="FuelsJson" value='@JsonSerializer.Serialize(Model.Fuels)' />
+    <div class="filter-header" onclick="toggleFilters()">
+        <span>Filters</span>
+        <span class="toggle-arrow collapsed-arrow">&#9660;</span>
+    </div>
+
+    <div class="filter-content collapsed">
+        <div class="filter">
+            <div class="filter-group">
+                <label for="makes">Make</label>
+                <select id="makes" name="make" asp-for="@Model.Make">
+                    <option value="">Select Make</option>
+                    @foreach (string option in Model.Makes)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+            </div>
+            @{
+                if (Model.Make != null)
+                {
+                    <div class="filter-group">
+                        <label for="model">Model</label>
+                            <select id="model" name="model" asp-for="@Model.Model">
+                                <option value="">Select Model</option>
+                                @foreach (string option in Model.Models)
+                                {
+                                    <option value="@option">@option</option>
+                                }
+                            </select>
+                    </div>
+                }
+            }
+            <div class="filter-group">
+                <label for="transmition">Transmission</label>
+                <select id="transmition" name="transmition" asp-for="@Model.Transmition">
+                    <option value="">Select Transmission</option>
+                    @foreach (string option in Model.Transmitions)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="fuel">Fuel</label>
+                <select id="fuel" name="fuel" asp-for="@Model.Fuel">
+                    <option value="">Select Fuel</option>
+                    @foreach (string option in Model.Fuels)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="color">Color</label>
+                <select id="color" name="color" asp-for="@Model.Color">
+                    <option value="">Select Color</option>
+                    @foreach (string option in Model.Colors)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="filter">
+            <div class="filter-group">
+                <label>Price Range</label>
+                <div class="input-group">
+                    <input type="number" name="minPrice" asp-for="@Model.MinPrice" placeholder="Min Price" min="0" required />
+                    <input type="number" name="maxPrice" asp-for="@Model.MaxPrice" placeholder="Max Price" max="5000000" required />
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Power Range</label>
+                <div class="input-group">
+                    <input type="number" name="minPower" asp-for="@Model.MinPower" placeholder="Min Power" min="0" required />
+                    <input type="number" name="maxPower" asp-for="@Model.MaxPower" placeholder="Max Power" max="1000" required />
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Mileage Range</label>
+                <div class="input-group">
+                    <input type="number" name="MinMilliage" asp-for="@Model.MinMilliage" placeholder="Min Mileage" min="0" required />
+                    <input type="number" name="MaxMilliage" asp-for="@Model.MaxMilliage" placeholder="Max Mileage" max="1000000" required/>
+                </div>
+            </div>
+        </div>
+
+        <div class="sort">
+            <label for="sortType">Sort By</label>
+            <select id="sortType" name="sortType" asp-for="@Model.SortType">
+                @foreach (string option in Model.SortTypes)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+        </div>
+
+        <div class="submit-container">
+            <button type="submit" class="submit-btn">Apply Filters</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleFilters() {
+        const filterContent = document.querySelector('.filter-content');
+        const arrow = document.querySelector('.toggle-arrow');
+        filterContent.classList.toggle('collapsed');
+        arrow.classList.toggle('collapsed-arrow');
+
+        if (filterContent.classList.contains('collapsed')) {
+            filterContent.style.height = '0px';
+        } else {
+            filterContent.style.height = filterContent.scrollHeight + 'px';
+        }
+    }
+</script>

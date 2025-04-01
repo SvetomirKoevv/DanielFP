@@ -92,7 +92,25 @@ namespace DataLayer
                 }
                 else
                 {
-                    return await context.Users.Include(x => x.Listings).FirstOrDefaultAsync(x => x.Id == key);
+                    
+                    User user = await context.Users
+                                        .Include(x => x.Listings)
+                                        .Include(x => x.Bids)
+                                        .FirstOrDefaultAsync(x => x.Id == key);
+                    
+                    List<Bid> allBids = await context.Bids
+                                                .Include(x => x.AuctionListing)
+                                                .Include(x => x.AuctionListing.Winner)
+                                                .Include(x => x.AuctionListing.Car.Images)
+                                                .ToListAsync();
+                    
+                    for (int i = 0; i < user.Bids.Count; i++)
+                    {
+                        Bid bidFromDb = allBids.First(x => x.Id == user.Bids[i].Id);
+                        user.Bids[i].AuctionListing = bidFromDb.AuctionListing;
+                    }
+
+                    return user;
                 }
             }
             catch (Exception)
@@ -172,11 +190,20 @@ namespace DataLayer
             }
         }
 
-        public async Task<User> FindUserByNameAsync(string name)
+        public async Task<User> FindUserByNameAsync(string name, bool useNavigationalProperties = false)
         {
             try
             {
-                return await userManager.FindByNameAsync(name);
+                var User = await userManager.FindByNameAsync(name);
+                if (!useNavigationalProperties)
+                {
+                    return await userManager.FindByIdAsync(User.Id);
+                }
+                else
+                {
+                    return await context.Users.Include(x => x.Listings).FirstOrDefaultAsync(x => x.Id == User.Id);
+                }
+                
             }
             catch (Exception ex)
             {

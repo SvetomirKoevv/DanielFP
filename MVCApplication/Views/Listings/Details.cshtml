@@ -1,4 +1,9 @@
-﻿@model ListingDetailsViewModel
+﻿@using BusinessLayer
+@using Microsoft.AspNetCore.Identity
+
+@model ListingDetailsViewModel
+@inject SignInManager<User> signInManager
+
 
 <div class="listing-details-top">
 	<div class="left">
@@ -36,7 +41,7 @@
 				}
 			</div>
 		</div>
-		<div class="listing-image-header" style="padding: 10px;">
+		<div class="listing-image-header" style="padding: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border: none;">
 			<h3 style="font-weight: bold; font-size: 26px">Характеристики</h3>
 			<hr />
 			<table class="table table-striped">
@@ -72,39 +77,42 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="listing-image-details">
+		<div class="listing-image-details" style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border: none;">
 			<h3 style="font-weight: bold; font-size: 26px;">Допълнителна информация</h3>
 			<hr />
 			<p>@Model.Listing.Description</p>
 		</div>
-		<div class="listing-contact">
-			<div class="contact-form">
-				<div class="contact-left">
-					<div class="name">
-						<label for="name">Име: </label><br />
-						<input type="text" placeholder="Име" name="name">
-					</div>
+		<div class="listing-contact" id="listing-contact" style="position: relative; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border: none !important;">
+			@{
+				<div class="contact-form" style="@(User.Identity.IsAuthenticated ? "" : "opacity: 0;")">
+					<form asp-action="SendEmail" method="post">
+						@{
+							User user = await signInManager.UserManager.GetUserAsync(User);
+							string email = user.Email;
+							string usernmae = user.UserName;
+						}
 
-					<div class="email">
-						<label for="email">Имейл: </label><br />
-						<input type="text" placeholder="Имейл" name="email">
-					</div>
+						<input type="hidden" value="@Model.Listing.Id" asp-for="Listing.Id" />
+						<input type="hidden" id="username" asp-for="ContactForm.Username" value="@usernmae" required />
+						<input type="hidden" id="email" asp-for="ContactForm.Email" value="@email" required>
 
-					<div class="phone">
-						<label for="phone">Телефон: </label><br />
-						<input type="text" placeholder="Телефон" name="phone">
-					</div>
-				</div>
+						<label for="subject">Subject</label>
+						<input type="text" id="subject" asp-for="ContactForm.Subject" required>
 
-				<div class="contact-right">
-					<p>Съобщение: </p>
-					<textarea name="msg" id="" rows="5" style="width: 35ch; max-width: 30ch; min-height: 126px;"></textarea>
-					<br />
-					<form action="#" method="post" class="d-flex justify-content-end" style="width: 85%;">
-						<input type="submit" value="Send" class="btn btn-primary" />
+						<label for="body">Message</label>
+						<textarea id="body" rows="6" asp-for="ContactForm.Body" required></textarea>
+
+						<input type="submit" class="input-submit" value="Send" id="contact-form">
 					</form>
 				</div>
-			</div>
+				@if (!User.Identity.IsAuthenticated)
+				{
+					<div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center;">
+						<p>Log In To Send Messages!<p/>
+					</div>
+
+				}
+			}
 		</div>
 	</div>
 	<div class="right">
@@ -116,7 +124,7 @@
 				<p style="font-size: 25px;">@Model.Listing.Price лв. <br /> <i style="font-size: 15px;">Цената е с включено ДДС</i></p>
 			</div>
 			<div class="offer-contact">
-				<a href="">Contanct Us for <br />more information</a>
+				<a href="#listing-contact">Contanct Us for <br />more information</a>
 			</div>
 			<div class="offer-fav">
 				@{
@@ -159,6 +167,29 @@
 	}
 </div>
 <style>
+	input[type="text"], input[type="email"], textarea {
+		width: 100%;
+		padding: 10px;
+		margin-bottom: 10px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		box-sizing: border-box;
+	}
+
+	.input-submit {
+		background-color: #4CAF50;
+		color: white;
+		padding: 12px 20px;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		width: 100%;
+	}
+
+		.input-submit:hover {
+			background-color: #45a049;
+		}
+
 	.listing-details-top {
 		display: flex;
 	}
@@ -176,8 +207,6 @@
 
 	.contact-form {
 		width: 100%;
-		border: 1px solid #ccc;
-		border-bottom-width: 3px;
 		padding: 10px;
 		display: flex;
 	}

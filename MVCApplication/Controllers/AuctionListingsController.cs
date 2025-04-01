@@ -9,6 +9,7 @@ using BusinessLayer;
 using DataLayer;
 using MVCApplication.Models;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace MVCApplication.Controllers
 {
@@ -29,10 +30,113 @@ namespace MVCApplication.Controllers
         }
 
         // GET: AuctionListings
+        public async Task<IActionResult> AllAuctions(FilterModel filters)
+        {
+            IEnumerable<AuctionListing> allListings = await _context.ReadAllAsync(true);
+
+            if (filters.isNull)
+            {
+                foreach (AuctionListing listing in allListings)
+                {
+                    filters.Makes.Add(listing.Car.Make);
+                    filters.Fuels.Add(listing.Car.FuelType.ToString());
+                    filters.Transmitions.Add(listing.Car.Transmittion.ToString());
+                    filters.Colors.Add(listing.Car.Color.ToString());
+                }
+                filters.Makes = filters.Makes.Distinct().ToList();
+                filters.Fuels = filters.Fuels.Distinct().ToList();
+                filters.Transmitions = filters.Transmitions.Distinct().ToList();
+                filters.Colors = filters.Colors.Distinct().ToList();
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(filters.ModelsJson))
+                {
+                    filters.Models = JsonSerializer.Deserialize<List<string>>(filters.ModelsJson);
+                }
+                if (!string.IsNullOrEmpty(filters.MakesJson))
+                {
+                    filters.Makes = JsonSerializer.Deserialize<List<string>>(filters.MakesJson);
+                }
+                if (!string.IsNullOrEmpty(filters.TransmitionsJson))
+                {
+                    filters.Transmitions = JsonSerializer.Deserialize<List<string>>(filters.TransmitionsJson);
+                }
+                if (!string.IsNullOrEmpty(filters.ColorsJson))
+                {
+                    filters.Colors = JsonSerializer.Deserialize<List<string>>(filters.ColorsJson);
+                }
+                if (!string.IsNullOrEmpty(filters.FuelsJson))
+                {
+                    filters.Fuels = JsonSerializer.Deserialize<List<string>>(filters.FuelsJson);
+                }
+
+                if (filters.Make == null)
+                {
+                    foreach (AuctionListing listing in allListings)
+                    {
+                        filters.Makes.Add(listing.Car.Make);
+                    }
+                    filters.Makes = filters.Makes.Distinct().ToList();
+                }
+                else
+                {
+                    foreach (AuctionListing listing in allListings)
+                    {
+                        filters.Models.Clear();
+                        if (listing.Car.Make == filters.Make)
+                        {
+                            filters.Models.Add(listing.Car.Model);
+                        }
+                        filters.Models = filters.Models.Distinct().ToList();
+                    }
+                }
+            }
+
+            List<AuctionListing> filteredListings = new List<AuctionListing>();
+
+            foreach (AuctionListing l in allListings)
+            {
+                if (filters.Model != null && filters.Model != l.Car.Model)
+                    continue;
+                if (filters.Make != null && filters.Make != l.Car.Make)
+                    continue;
+                if (filters.Transmition != null && filters.Transmition != l.Car.Transmittion.ToString())
+                    continue;
+                if (filters.Fuel != null && filters.Fuel != l.Car.FuelType.ToString())
+                    continue;
+                if (filters.Color != null && filters.Color != l.Car.Color.ToString())
+                    continue;
+                if (l.Bids.Last().Money < filters.MinPrice || l.Bids.Last().Money > filters.MaxPrice)
+                    continue;
+                if (l.Car.Mileage < filters.MinMilliage || l.Car.Mileage > filters.MaxMilliage)
+                    continue;
+                if (l.Car.HorsePower < filters.MinPower || l.Car.HorsePower > filters.MaxPower)
+                    continue;
+
+                filteredListings.Add(l);
+            }
+
+            int sortIndex = filters.SortTypes.IndexOf(filters.SortType);
+
+            switch(sortIndex)
+            {
+                case 0: break;
+                case 1: filteredListings.Reverse(); break;
+                case 2: filteredListings = filteredListings.OrderBy(x => x.StartingPrice).ToList(); break;
+                case 3: filteredListings = filteredListings.OrderByDescending(x => x.StartingPrice).ToList(); break;
+            }
+
+            AllAuctionListingsModel viewModel = new AllAuctionListingsModel(filteredListings, filters);
+
+            return View(viewModel);
+        }
+
+        // GET: AuctionListings
         public async Task<IActionResult> Index()
         {
               return await _context.ReadAllAsync() != null ? 
-                          View(await _context.ReadAllAsync()) :
+                          View(await _context.ReadAllAsync(true)) :
                           Problem("Entity set 'RevHausDbContext.AuctionListings'  is null.");
         }
 
@@ -140,9 +244,19 @@ namespace MVCApplication.Controllers
                 return NotFound();
             }
 
+            if (auctionListing.Status == AuctionStatus.Closed)
+            {
+                return RedirectToAction(nameof(AuctionEnded));
+            }
+
             AuctionListingCreateModel model = new AuctionListingCreateModel(auctionListing, auctionListing.Car);
 
             return View(model);
+        }
+
+        public async Task<IActionResult> AuctionEnded()
+        {
+            return View();
         }
 
         // POST: AuctionListings/Edit/5
@@ -210,7 +324,7 @@ namespace MVCApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.ReadAllAsync() == null)
+            if (await _context.ReadAllAsync() == null)
             {
                 return Problem("Entity set 'RevHausDbContext.AuctionListings'  is null.");
             }
@@ -248,6 +362,12 @@ namespace MVCApplication.Controllers
 
             // Get the listing from the database
             var listing = await _context.ReadAsync(biModel.ListingId, true);
+            if (DateTime.Now > listing.StartDateTime.AddHours(listing.DurationInHours))
+            {
+                TempData["BidError"] = "Auction has ended";
+                return RedirectToAction(nameof(Details), new { id = biModel.ListingId });
+            }
+
             if (listing == null)
             {
                 return NotFound("Listing not found.");

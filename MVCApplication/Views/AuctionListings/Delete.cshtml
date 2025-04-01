@@ -1,9 +1,9 @@
 ﻿@using BusinessLayer
 @model AuctionListingWithVBids<AuctionListing>;
 <div class="delete-button-con">
-	<form asp-action="Delete">
-		<a asp-action="Index">Back to List</a> |
-		<input type="submit" value="Delete" class="btn btn-danger" />
+	<form asp-action="Delete" class="d-flex justify-content-center align-items-center gap-1" style="min-width: 250px;">
+		<a asp-action="Index" style="width: fit-content; flex: 1;text-align: center;">Back to List</a> |
+		<input type="submit" value="Delete" class="btn btn-danger" style="flex: 1;" />
 		<input type="hidden" asp-for="Listing.Id" />
 	</form>
 </div>
