@@ -13,7 +13,7 @@ namespace MVCApplication.Managers
         {
             try
             {
-                string apiKeyD = _config["EmailService:ApiKey"];
+                string ivan = _config["EmailService:ApiKey"];
                 string key = _config["EmailService:Key"];
 
                 var apiKey = Decrypt(_config["EmailService:ApiKey"], _config["EmailService:Key"]);
