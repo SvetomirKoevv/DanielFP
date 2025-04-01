@@ -10,6 +10,9 @@ using DataLayer;
 using MVCApplication.Models;
 using System.Security.Claims;
 using System.Text.Json;
+using MVCApplication.Managers;
+using SendGrid;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MVCApplication.Controllers
 {
@@ -18,15 +21,18 @@ namespace MVCApplication.Controllers
         private readonly AuctionListingContext _context;
         private readonly BidContext bidsContext;
         private readonly IdentityContext _identityContext;
+        private readonly IConfiguration _config;
 
         public AuctionListingsController
             (AuctionListingContext context, 
             BidContext bidsContext_,
-            IdentityContext identityContext)
+            IdentityContext identityContext,
+            IConfiguration config)
         {
             _context = context;
             bidsContext = bidsContext_;
             _identityContext = identityContext;
+            _config = config;
         }
 
         // GET: AuctionListings
@@ -384,6 +390,36 @@ namespace MVCApplication.Controllers
             await bidsContext.CreateAsync(newBid);
 
             return RedirectToAction(nameof(Details), new { id = biModel.ListingId });
+        }
+
+        [HttpPost, ActionName("SendEmail")]
+        public async Task<IActionResult> SendEmail(ListingAuctionDetailsViewModel modelA)
+        {
+            Response res = await EmailSenderManager.SendEmailAsync(modelA.ContactForm.Email,
+                                                                    modelA.ContactForm.Username,
+                                                                    modelA.ContactForm.Subject,
+                                                                    modelA.ContactForm.Body,
+                                                                    _config);
+            if (res.IsSuccessStatusCode)
+            {
+                return RedirectToAction(nameof(SuccessfulContact), new { returnId = modelA.Listing.Id });
+            }
+            else
+            {
+                return RedirectToAction(nameof(UnSuccessfulContact), new { returnId = modelA.Listing.Id });
+            }
+        }
+
+        [Authorize(Roles = "Administrator, User")]
+        public async Task<IActionResult> SuccessfulContact(int returnId)
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "Administrator, User")]
+        public async Task<IActionResult> UnSuccessfulContact(int returnId)
+        {
+            return View();
         }
 
         private bool AuctionListingExists(int id)

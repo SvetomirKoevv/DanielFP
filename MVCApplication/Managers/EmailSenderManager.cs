@@ -1,19 +1,23 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
 using SendGrid;
 using SendGrid.Helpers.Mail;
-using System.Net;
-using System.Net.Mail;
+using System.Text;
+using System.Security.Cryptography;
+
 
 namespace MVCApplication.Managers
 {
     public class EmailSenderManager : IEmailSender
     {
-
-        public static async Task<Response> SendEmailAsync(string email, string username, string subject, string body)
+        public static async Task<Response> SendEmailAsync(string email, string username, string subject, string body, IConfiguration _config)
         {
             try
             {
-                var apiKey = "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";
+                string apiKeyD = _config["EmailService:ApiKey"];
+                string key = _config["EmailService:Key"];
+
+                var apiKey = Decrypt(_config["EmailService:ApiKey"], _config["EmailService:Key"]);
+
                 var client = new SendGridClient(apiKey);
 
                 var from = new EmailAddress("dankata047@gmail.com", "BiteBliss Admin");
@@ -36,6 +40,19 @@ namespace MVCApplication.Managers
             {
                 throw ex;
             }
+        }
+
+        private static string Decrypt(string encryptedText, string key)
+        {
+            using var aes = Aes.Create();
+            aes.Key = Encoding.UTF8.GetBytes(key.PadRight(32)); // Ensure key is 32 bytes
+            aes.IV = new byte[16]; // Default IV for simplicity
+
+            using var decryptor = aes.CreateDecryptor();
+            byte[] input = Convert.FromBase64String(encryptedText);
+            byte[] decrypted = decryptor.TransformFinalBlock(input, 0, input.Length);
+
+            return Encoding.UTF8.GetString(decrypted);
         }
 
         public Task SendEmailAsync(string email, string subject, string htmlMessage)

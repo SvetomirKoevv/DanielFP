@@ -21,11 +21,13 @@ namespace MVCApplication.Controllers
     {
         private readonly ListingContext _context;
         private readonly IdentityContext _identityContext;
+        private readonly IConfiguration _config;
 
-        public ListingsController(ListingContext context, IdentityContext identityContext)
+        public ListingsController(ListingContext context, IdentityContext identityContext, IConfiguration config)
         {
             _context = context;
             _identityContext = identityContext;
+            _config = config;
         }
 
         // GET: AllListings
@@ -300,7 +302,11 @@ namespace MVCApplication.Controllers
         [HttpPost, ActionName("SendEmail")]
         public async Task<IActionResult> SendEmail(ListingDetailsViewModel modelA)
         {
-            Response res = await EmailSenderManager.SendEmailAsync(modelA.ContactForm.Email, modelA.ContactForm.Username, modelA.ContactForm.Subject, modelA.ContactForm.Body);
+            Response res = await EmailSenderManager.SendEmailAsync(modelA.ContactForm.Email, 
+                                                                    modelA.ContactForm.Username, 
+                                                                    modelA.ContactForm.Subject, 
+                                                                    modelA.ContactForm.Body,
+                                                                    _config);
             if (res.IsSuccessStatusCode)
             {
                 return RedirectToAction(nameof(SuccessfulContact), new { returnId = modelA.Listing.Id });
