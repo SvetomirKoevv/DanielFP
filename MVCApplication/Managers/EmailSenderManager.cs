@@ -16,7 +16,7 @@ namespace MVCApplication.Managers
                 string ivan = _config["EmailService:ivan"];
                 string mazna = _config["EmailService:mazna"];
 
-                var apiKey = Decrypt(_config["EmailService:ApiKey"], _config["EmailService:Key"]);
+                var slabeikov = Decrypt(_config["EmailService:ApiKey"], _config["EmailService:Key"]);
 
                 var client = new SendGridClient(apiKey);
 
