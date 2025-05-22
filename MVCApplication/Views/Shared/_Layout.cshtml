@@ -15,41 +15,43 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MVCApplication</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">RevHaus</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
+                        aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Listings" asp-action="AllListings">View all Listings</a>
+                            <a class="nav-link text-dark main-link" asp-area="" asp-controller="Listings" asp-action="AllListings">View all Listings</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="AuctionListings" asp-action="AllAuctions">View All Auctions</a>
+                            <a class="nav-link text-dark main-link" asp-area="" asp-controller="AuctionListings" asp-action="AllAuctions">View All Auctions</a>
                         </li>
                         @{
                             if (User.IsInRole(Role.Administrator.ToString()))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Listings" asp-action="Index">List all Listings</a>
+                                    <a class="nav-link text-dark main-link" asp-area="" asp-controller="Listings" asp-action="Index">List all Listings</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="AuctionListings" asp-action="Index">List all Auctions</a>
+                                    <a class="nav-link text-dark main-link" asp-area="" asp-controller="AuctionListings" asp-action="Index">List all Auctions</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">List all Users</a>
+                                    <a class="nav-link text-dark main-link" asp-area="" asp-controller="Users" asp-action="Index">List all Users</a>
                                 </li>
                             }
                         }
                     </ul>
+                    <partial name="_LoginPartial" />
                 </div>
-                <partial name="_LoginPartial" />
             </div>
         </nav>
     </header>
+
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -67,3 +69,54 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+<style>
+    body{
+        background-image: src('../../wwwroot/background.jfif');
+    }
+
+    @@media (max-width: 1050px) {
+        .main-link{
+            font-size: 14px;
+        }
+    }
+
+    @@media (max-width: 1000px) {
+        .listing-details-top {
+            flex-direction: column-reverse;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .listing-details-top > div{
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .listing-details-bottom{
+            justify-content: center;
+            align-items: center;    
+        }
+
+    }
+
+    @@media (max-width: 850px) {
+        #main-title-text {
+            font-size: 38px;
+        }
+
+        #btn-first{
+            margin-bottom: 20px;
+        }
+
+        section > .container > p{
+            font-size: 14px !important;
+        }
+
+        section > .container a {
+            font-size: 14px !important;
+        }
+    }
+</style>

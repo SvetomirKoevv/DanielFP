@@ -38,7 +38,7 @@ namespace MVCApplication.Controllers
         // GET: AuctionListings
         public async Task<IActionResult> AllAuctions(FilterModel filters)
         {
-            IEnumerable<AuctionListing> allListings = await _context.ReadAllAsync(true);
+            IEnumerable<AuctionListing> allListings = await _context.ReadNoClosedAllAsync(true, true);
 
             if (filters.isNull)
             {
@@ -119,7 +119,8 @@ namespace MVCApplication.Controllers
                     continue;
                 if (l.Car.HorsePower < filters.MinPower || l.Car.HorsePower > filters.MaxPower)
                     continue;
-
+                if (l.Status == AuctionStatus.Closed)
+                    continue;
                 filteredListings.Add(l);
             }
 
@@ -132,6 +133,53 @@ namespace MVCApplication.Controllers
                 case 2: filteredListings = filteredListings.OrderBy(x => x.StartingPrice).ToList(); break;
                 case 3: filteredListings = filteredListings.OrderByDescending(x => x.StartingPrice).ToList(); break;
             }
+
+            int totalPages = (int)Math.Ceiling((double)filteredListings.Count / filters.ListingsPerPage);
+            filters.ViewPages = Enumerable.Range(1, totalPages).ToList();
+            if (filters.ViewPages.Count > 0)
+            {
+
+                HashSet<int> pages = new HashSet<int>();
+
+                pages.Add(1);
+                if (filters.CurrentPage != 1)
+                {
+                    pages.Add(filters.CurrentPage);
+                }
+                pages.Add(filters.ViewPages.Last());
+
+                int before = filters.CurrentPage - 1;
+                int after = filters.CurrentPage + 1;
+
+                while (pages.Count < 5)
+                {
+                    if (before > 1)
+                    {
+                        pages.Add(before--);
+                    }
+
+                    if (after <= filters.ViewPages.Last() && pages.Count < 5)
+                    {
+                        pages.Add(after++);
+                    }
+
+                    if (pages.Count >= 5)
+                    {
+                        break;
+                    }
+
+                    if (pages.Count == filters.ViewPages.Count())
+                    {
+                        break;
+                    }
+                }
+
+                filters.ViewPages = pages.OrderBy(p => p).ToList();
+            }
+            filteredListings = filteredListings
+                .Skip((filters.CurrentPageIndex) * filters.ListingsPerPage)
+                .Take(filters.ListingsPerPage)
+                .ToList();
 
             AllAuctionListingsModel viewModel = new AllAuctionListingsModel(filteredListings, filters);
 

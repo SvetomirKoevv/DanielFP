@@ -1,5 +1,5 @@
 ﻿.listing-item {
-    min-width: 150px;
+    min-width: 200px;
     max-width: 240px;
     display: flex;
     flex-direction: column;

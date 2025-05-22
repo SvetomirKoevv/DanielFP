@@ -1,11 +1,14 @@
-﻿<section class="hero">
+﻿<div class="main-all">
+
+
+<section class="hero">
     <div class="container">
-        <h2>
+        <h2 id="main-title-text">
             Welcome to
             <span class="title-name">RevHause</span>
         </h2>
         <p>Your trusted partner in finding the perfect car.</p>
-        <a href="#contact" class="btn-index">Contact Us</a>
+        <a href="#contact" id="btn-first" class="btn-index">Contact Us</a>
         <a href="#about" class="btn-index">Explore Our Services</a>
     </div>
 </section>
@@ -49,6 +52,7 @@
         </ul>
     </div>
 </section>
+</div>
 
 <style>
     body {
@@ -59,6 +63,11 @@
         color: #646464;
     }
 
+    .main-all{
+        display: flex;
+        flex-direction: column;
+    }
+
     .container {
         width: 80%;
         margin: auto;
@@ -66,8 +75,6 @@
     }
 
     .hero {
-        background: url("hero-image.jpg") no-repeat center center/cover;
-        height: 400px;
         color: #fff;
         text-align: center;
         padding-top: 150px;
@@ -152,4 +159,5 @@
                     #contact ul li a:hover {
                         color: #cc5500;
                     }
+
 </style>

@@ -1,127 +1,121 @@
 ﻿@using BusinessLayer
 @model AuctionListingWithVBids<AuctionListing>;
-<div class="delete-button-con">
-	<form asp-action="Delete" class="d-flex justify-content-center align-items-center gap-1" style="min-width: 250px;">
-		<a asp-action="Index" style="width: fit-content; flex: 1;text-align: center;">Back to List</a> |
-		<input type="submit" value="Delete" class="btn btn-danger" style="flex: 1;" />
-		<input type="hidden" asp-for="Listing.Id" />
-	</form>
-</div>
-<div class="listing-details-top">
-	<div class="left">
-		<div class="listing-details-top-image">
-			<div class="details-img-con">
-				<div>
-					<div class="arrow-left" id="prevBtn">
-						<
-					</div>
-				</div>
-				<div style="width:100%;z-index: -1;">
-					@{
-
-						var base64 = Convert.ToBase64String(Model.Listing.Car.Images[0].Data);
-						var Image = String.Format("data:image/gif;base64,{0}", base64);
-						<img src="@Image" style="width: 80%" class="images" id="currentImage" />
-					}
-				</div>
-				<div>
-					<div class="arrow-right" id="nextBtn">
-						>
-					</div>
-				</div>
-			</div>
-			<div class="details-small-img-con">
-				@{
-					for (int i = 0; i < Model.Listing.Car.Images.Count; i++)
-					{
-						var base64_ = Convert.ToBase64String(Model.Listing.Car.Images[i].Data);
-						var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
-						<div class="small-image">
-							<img src="@Image_" class="images images-small" />
+<div class="delete-con">
+	<div class="listing-details-top" style="width: 70%;">
+		<div class="left">
+			<div class="listing-details-top-image">
+				<div class="details-img-con">
+					<div>
+						<div class="arrow-left" id="prevBtn">
+							<
 						</div>
+					</div>
+					<div style="width:100%;z-index: -1;">
+						@{
+
+							var base64 = Convert.ToBase64String(Model.Listing.Car.Images[0].Data);
+							var Image = String.Format("data:image/gif;base64,{0}", base64);
+							<img src="@Image" style="width: 80%" class="images" id="currentImage" />
+						}
+					</div>
+					<div>
+						<div class="arrow-right" id="nextBtn">
+							>
+						</div>
+					</div>
+				</div>
+				<div class="details-small-img-con">
+					@{
+						for (int i = 0; i < Model.Listing.Car.Images.Count; i++)
+						{
+							var base64_ = Convert.ToBase64String(Model.Listing.Car.Images[i].Data);
+							var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+							<div class="small-image">
+								<img src="@Image_" class="images images-small" />
+							</div>
+						}
 					}
-				}
-			</div>
-		</div>
-		<div class="listing-image-header" style="padding: 10px;">
-			<h3 style="font-weight: bold; font-size: 26px">Характеристики</h3>
-			<hr />
-			<table class="table table-striped">
-				<tbody>
-					<tr>
-						<th>Make</th>
-						<td>@Model.Listing.Car.Make</td>
-					</tr>
-					<tr>
-						<th>Model</th>
-						<td>@Model.Listing.Car.Model</td>
-					</tr>
-					<tr>
-						<th>Horse Power</th>
-						<td>@Model.Listing.Car.HorsePower</td>
-					</tr>
-					<tr>
-						<th>Mileage</th>
-						<td>@Model.Listing.Car.Mileage</td>
-					</tr>
-					<tr>
-						<th>Fuel Type</th>
-						<td>@Model.Listing.Car.FuelType</td>
-					</tr>
-					<tr>
-						<th>Transmittion</th>
-						<td>@Model.Listing.Car.Transmittion</td>
-					</tr>
-					<tr>
-						<th>Color</th>
-						<td>@Model.Listing.Car.Color</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-		<div class="listing-image-details">
-			<h3 style="font-weight: bold; font-size: 26px;">Допълнителна информация</h3>
-			<hr />
-			<p>@Model.Listing.Description</p>
-		</div>
-		<div class="listing-contact">
-			<div class="contact-form">
-				<div class="contact-left">
-					<div class="name">
-						<label for="name">Име: </label><br />
-						<input type="text" placeholder="Име" name="name">
-					</div>
-
-					<div class="email">
-						<label for="email">Имейл: </label><br />
-						<input type="text" placeholder="Имейл" name="email">
-					</div>
-
-					<div class="phone">
-						<label for="phone">Телефон: </label><br />
-						<input type="text" placeholder="Телефон" name="phone">
-					</div>
-				</div>
-
-				<div class="contact-right">
-					<p>Съобщение: </p>
-					<textarea name="msg" id="" rows="5" style="width: 35ch; max-width: 30ch; min-height: 126px;"></textarea>
-					<br />
-					<form action="#" method="post" class="d-flex justify-content-end" style="width: 85%;">
-						<input type="submit" value="Send" class="btn btn-primary" />
-					</form>
 				</div>
 			</div>
+			<div class="listing-image-header" style="padding: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border: none;">
+				<h3 style="font-weight: bold; font-size: 26px">Характеристики</h3>
+				<hr />
+				<table class="table table-striped">
+					<tbody>
+						<tr>
+							<th>Make</th>
+							<td>@Model.Listing.Car.Make</td>
+						</tr>
+						<tr>
+							<th>Model</th>
+							<td>@Model.Listing.Car.Model</td>
+						</tr>
+						<tr>
+							<th>Horse Power</th>
+							<td>@Model.Listing.Car.HorsePower</td>
+						</tr>
+						<tr>
+							<th>Mileage</th>
+							<td>@Model.Listing.Car.Mileage</td>
+						</tr>
+						<tr>
+							<th>Fuel Type</th>
+							<td>@Model.Listing.Car.FuelType</td>
+						</tr>
+						<tr>
+							<th>Transmittion</th>
+							<td>@Model.Listing.Car.Transmittion</td>
+						</tr>
+						<tr>
+							<th>Color</th>
+							<td>@Model.Listing.Car.Color</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="listing-image-details" style="padding: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border: none;">
+				<h3 style="font-weight: bold; font-size: 26px;">Допълнителна информация</h3>
+				<hr />
+				<p>@Model.Listing.Description</p>
+			</div>
+		
 		</div>
+	</div>
+	<div class="delete-button-con" style="width: 30%;">
+		<form asp-action="Delete" class="d-flex justify-content-center align-items-center gap-1" style="min-width: 250px;">
+			<a asp-action="Index" style="width: fit-content; flex: 1;text-align: center;">Back to List</a> |
+			<input type="submit" value="Delete" class="btn btn-danger" style="flex: 1;" />
+			<input type="hidden" asp-for="Listing.Id" />
+		</form>
 	</div>
 </div>
 <style>
-
-	.delete-button-con{
-		width: 100%;
-		display: flex;
+	.delete-button-con {
 		justify-content: end;
 	}
+
+	input[type="text"], input[type="email"], textarea {
+		width: 100%;
+		padding: 10px;
+		margin-bottom: 10px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		box-sizing: border-box;
+	}
+
+	.input-submit {
+		background-color: #4CAF50;
+		color: white;
+		padding: 12px 20px;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		width: 100%;
+	}
+
+		.input-submit:hover {
+			background-color: #45a049;
+		}
 
 	.listing-details-top {
 		display: flex;
@@ -141,8 +135,6 @@
 
 	.contact-form {
 		width: 100%;
-		border: 1px solid #ccc;
-		border-bottom-width: 3px;
 		padding: 10px;
 		display: flex;
 	}
@@ -163,7 +155,6 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		width: 60%;
 		gap: 30px;
 	}
 
@@ -230,7 +221,8 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		border: 0.3px solid black;
+		border: 0.6px solid rgb(0, 0, 0, 0.15);
+		border-radius: 5px;
 		aspect-ratio: 16/9;
 		max-width: 100%;
 	}
@@ -291,18 +283,36 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: space-evenly;
-		height: 400px;
-		border: 0.6px solid black;
+		height: 450px;
+		border: 0.6px solid rgb(0, 0, 0, 0.15);
+		border-radius: 8px;
 		position: sticky;
 		top: 20px;
 		min-width: 250px;
 	}
 
-	.listing-details-bottom {
+	.offer-cont {
 		display: flex;
-		gap: 15px;
+		flex-direction: column;
+		justify-content: space-evenly;
+		height: 390px;
 	}
 
+	.offer-offset {
+		width: 100%;
+		height: 40px;
+	}
+
+	.listing-details-bottom {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 35px;
+	}
+
+	.delete-con {
+		display: flex;
+		width: 100%;
+	}
 
 	@@keyframes slideLeft {
 		0% {
@@ -329,6 +339,24 @@
 
 		100% {
 			transform: translateX(0);
+		}
+	}
+
+	@@media(max-width: 900px) {
+		.delete-con {
+			flex-direction: column;
+			justify-content: center;
+			width: 100%;
+        }
+
+        .delete-button-con {
+			width: 100% !important;
+			align-items: self-start;
+			display: flex;
+        }
+
+		.listing-details-top {
+			width: 100% !important;
 		}
 	}
 </style>

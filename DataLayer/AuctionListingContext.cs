@@ -66,6 +66,29 @@ namespace DataLayer
             }
         }
 
+        public async Task<ICollection<AuctionListing>> ReadNoClosedAllAsync(bool useNavigationalProperties = false, bool isReadOnly = true)
+        {
+            try
+            {
+                List<AuctionListing> query = await dBContext.AuctionListings.Where(x => x.Status != AuctionStatus.Closed).ToListAsync();
+                
+                if (useNavigationalProperties)
+                {
+                    query = await dBContext.AuctionListings
+                            .Where(x => x.Status != AuctionStatus.Closed)
+                            .Include(x => x.Bids)
+                            .Include(x => x.Car)
+                            .Include(x => x.Car.Images)
+                            .ToListAsync();
+                }
+                return query;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public async Task<AuctionListing> ReadAsync(int key, bool useNavigationalProperties = false, bool isReadOnly = true)
         {
             try

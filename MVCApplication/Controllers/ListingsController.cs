@@ -128,7 +128,57 @@ namespace MVCApplication.Controllers
                 case 2: filteredListings = filteredListings.OrderBy(x => x.Price).ToList(); break;
                 case 3: filteredListings = filteredListings.OrderByDescending(x => x.Price).ToList(); break;
             }
+            // Calculate the total pages
+            int totalPages = (int)Math.Ceiling((double)filteredListings.Count / filters.ListingsPerPage);
+            filters.ViewPages = Enumerable.Range(1, totalPages).ToList();
 
+            // Create a HashSet to avoid duplicates
+            HashSet<int> pages = new HashSet<int>();
+
+            // Always add the first, current, and last page
+            pages.Add(1);
+            if (filters.CurrentPage != 1)
+            {
+                pages.Add(filters.CurrentPage);
+            }
+            pages.Add(filters.ViewPages.Last());
+
+            int before = filters.CurrentPage - 1;
+            int after = filters.CurrentPage + 1;
+
+            // Loop to add surrounding pages
+            // Loop to add surrounding pages
+            while (pages.Count < 5)
+            {
+                bool added = false;
+
+                if (before > 1)
+                {
+                    pages.Add(before--);
+                    added = true;
+                }
+
+                if (after <= filters.ViewPages.Last() && pages.Count < 5)
+                {
+                    pages.Add(after++);
+                    added = true;
+                }
+
+                // If no pages were added in this iteration, break to avoid infinite loop
+                if (!added)
+                {
+                    break;
+                }
+            }
+
+            // Order pages and convert to list
+            filters.ViewPages = pages.OrderBy(p => p).ToList();
+
+            // Now, use filteredListings as per the current page index
+            filteredListings = filteredListings
+                .Skip((filters.CurrentPageIndex) * filters.ListingsPerPage)
+                .Take(filters.ListingsPerPage)
+                .ToList();
 
             AllListingsFilteredModel viewModel = new AllListingsFilteredModel(filteredListings, filters);
 

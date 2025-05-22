@@ -9,47 +9,176 @@
 	@Html.Partial("_FiltersPartial", Model.FilterModel)
 </form>
 
-@{
-	if (Model.Listings.Count == 0)
-	{
-		<div style="padding: 10px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center;">
-			No items found for the selected filters.
-		</div>
+<div class="alllistings">
+	@{
+		if (Model.Listings.Count == 0)
+		{
+			<div style="padding: 10px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center;">
+				No items found for the selected filters.
+			</div>
 
-	}
-	else
-	{
-		<div class="all-listings-con">
-			@{
-				for (int i = 0; i < Model.Listings.Count; i++)
-				{
-					<a class="listing-item" asp-action="Details" asp-controller="Listings" asp-route-id="@Model.Listings[i].Id">
-						<div class="listing-item-img">
-							@{
-								var base64_ = Convert.ToBase64String(Model.Listings[i].Car.Images[0].Data);
-								var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
-								<img src="@Image_" />
-							}
-						</div>
-						<div class="listing-item-name">
-							<p>@Model.Listings[i].Name</p>
-						</div>
-						<div class="listing-item-model">
-							<p>@Model.Listings[i].Car.Make @Model.Listings[i].Car.Model</p>
-						</div>
-					</a>
+		}
+		else
+		{
+			<div class="all-listings-con">
+				@{
+					for (int i = 0; i < Model.Listings.Count; i++)
+					{
+						<a class="listing-item" asp-action="Details" asp-controller="Listings" asp-route-id="@Model.Listings[i].Id">
+							<div class="listing-item-img">
+								@{
+									var base64_ = Convert.ToBase64String(Model.Listings[i].Car.Images[0].Data);
+									var Image_ = String.Format("data:image/gif;base64,{0}", base64_);
+									<img src="@Image_" />
+								}
+							</div>
+							<div class="listing-item-name">
+								<p>@Model.Listings[i].Name</p>
+							</div>
+							<div class="listing-item-model">
+								<p>@Model.Listings[i].Car.Make @Model.Listings[i].Car.Model</p>
+							</div>
+						</a>
+					}
 				}
-			}
-		</div>
+			</div>
+		}
 	}
-}
+
+	@{
+		if (Model.FilterModel.ViewPages.Count > 1)
+		{
+			<div class="pages-con">
+				<div class="pages-con-left">
+					@if (Model.FilterModel.CurrentPageIndex != 0)
+					{
+					<a asp-controller="Listings"
+					   asp-action="AllListings"
+					   asp-route-Make="@Model.FilterModel.Make"
+					   asp-route-Model="@Model.FilterModel.Model"
+					   asp-route-Transmition="@Model.FilterModel.Transmition"
+					   asp-route-Fuel="@Model.FilterModel.Fuel"
+					   asp-route-Color="@Model.FilterModel.Color"
+					   asp-route-MinPrice="@Model.FilterModel.MinPrice"
+					   asp-route-MaxPrice="@Model.FilterModel.MaxPrice"
+					   asp-route-MinPower="@Model.FilterModel.MinPower"
+					   asp-route-MaxPower="@Model.FilterModel.MaxPower"
+					   asp-route-MinMilliage="@Model.FilterModel.MinMilliage"
+					   asp-route-MaxMilliage="@Model.FilterModel.MaxMilliage"
+					   asp-route-SortType="@Model.FilterModel.SortType"
+					   asp-route-CurrentPageIndex="@(@Model.FilterModel.CurrentPageIndex - 1)"
+					   class="page-link">&#60</a>
+					}
+				</div>
+				<div style="display: flex; justify-content: space-evenly;">
+					@{
+						@foreach (var i in Model.FilterModel.ViewPages)
+						{
+							<a asp-controller="Listings"
+							   asp-action="AllListings"
+							   asp-route-Make="@Model.FilterModel.Make"
+							   asp-route-Model="@Model.FilterModel.Model"
+							   asp-route-Transmition="@Model.FilterModel.Transmition"
+							   asp-route-Fuel="@Model.FilterModel.Fuel"
+							   asp-route-Color="@Model.FilterModel.Color"
+							   asp-route-MinPrice="@Model.FilterModel.MinPrice"
+							   asp-route-MaxPrice="@Model.FilterModel.MaxPrice"
+							   asp-route-MinPower="@Model.FilterModel.MinPower"
+							   asp-route-MaxPower="@Model.FilterModel.MaxPower"
+							   asp-route-MinMilliage="@Model.FilterModel.MinMilliage"
+							   asp-route-MaxMilliage="@Model.FilterModel.MaxMilliage"
+							   asp-route-SortType="@Model.FilterModel.SortType"
+							   asp-route-CurrentPageIndex="@(@i - 1)"
+							   class="@(i == Model.FilterModel.CurrentPage ? "page-link-current" : "page-link")">@i</a>
+						}
+
+					}
+				</div>
+				<div class="pages-con-right">
+					@if (Model.FilterModel.CurrentPageIndex < Model.FilterModel.ViewPages.Last() - 1)
+						{
+							<a asp-controller="Listings"
+									asp-action="AllListings"
+									asp-route-Make="@Model.FilterModel.Make"
+									asp-route-Model="@Model.FilterModel.Model"
+									asp-route-Transmition="@Model.FilterModel.Transmition"
+									asp-route-Fuel="@Model.FilterModel.Fuel"
+									asp-route-Color="@Model.FilterModel.Color"
+									asp-route-MinPrice="@Model.FilterModel.MinPrice"
+									asp-route-MaxPrice="@Model.FilterModel.MaxPrice"
+									asp-route-MinPower="@Model.FilterModel.MinPower"
+									asp-route-MaxPower="@Model.FilterModel.MaxPower"
+									asp-route-MinMilliage="@Model.FilterModel.MinMilliage"
+									asp-route-MaxMilliage="@Model.FilterModel.MaxMilliage"
+									asp-route-SortType="@Model.FilterModel.SortType"
+									asp-route-CurrentPageIndex="@(@Model.FilterModel.CurrentPageIndex + 1)"
+									class="page-link">&#62</a>
+						}
+				</div>
+			</div>
+		}
+	}
+</div>
 
 <style>
+	.alllistings{
+		min-height: 60vh;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
 	.all-listings-con {
 		width: 100%;	
 		display: flex;
-		justify-content: flex-start;
+		justify-content: space-evenly;
 		gap: 30px;
 		align-items: center;
+		flex-wrap: wrap;
+	}
+
+	.page-link {
+		display: inline-block;
+		padding: 10px 15px;
+		margin: 0 5px;
+		background-color: #f4f4f4; 
+		color: #333; 
+		border-radius: 5px;
+		text-decoration: none; 
+		font-weight: 500;
+		transition: background-color 0.3s ease, transform 0.2s ease;
+	}
+		.page-link:hover {
+			background-color: #007bff;
+			color: white; 
+			transform: scale(1.05); 
+		}
+
+	.page-link-current {
+		display: inline-block;
+		padding: 10px 15px;
+		margin: 0 5px;
+		background-color: #007bff; 
+		color: white; 
+		border-radius: 5px;
+		font-weight: 600; 
+		pointer-events: none;
+	}
+	.pages-con{
+		width: 100%;
+		display: flex; 
+		justify-content: center;
+	}
+	.pages-con > div{
+		width: 33%;
+	}
+
+	.pages-con-left{
+		display: flex;
+		justify-content: end;
+	}
+
+	.pages-con-right {
+		display: flex;
+		justify-content: start;
 	}
 </style>

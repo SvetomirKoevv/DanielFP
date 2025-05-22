@@ -14,11 +14,11 @@
             <div style="display:flex;width:100%;" class="manage-index-con">
                 <div class="manage-index-con-input w-50">
                     <div class="form-floating">
-                        <input asp-for="Username" class="form-control" disabled />
+                        <input asp-for="Username" class="form-control identity-input" disabled />
                         <label asp-for="Username" class="form-label"></label>
                     </div>
                     <div class="form-floating">
-                        <input asp-for="Email" class="form-control" disabled />
+                        <input asp-for="Email" class="form-control identity-input" disabled />
                         <label asp-for="Email" class="form-label"></label>
                     </div>
                 </div>
@@ -35,5 +35,15 @@
     .manage-index-con-input > *{
         margin-top: 5px;
         margin-bottom: 5px;
+    }
+
+    .identity-input{
+        min-width: 250px;
+    }
+
+    @@media(max-width: 768px){
+        .manage-index-con-input{
+            width: 100% !important;
+        }
     }
 </style>

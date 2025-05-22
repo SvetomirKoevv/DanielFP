@@ -3,6 +3,7 @@ using DataLayer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Threading.Tasks;
 
 namespace MVCApplication.Areas.Identity.Pages.Account.Manage
 {
@@ -35,18 +36,28 @@ namespace MVCApplication.Areas.Identity.Pages.Account.Manage
         [BindProperty]
         public int ItemId { get; set; }
 
-        public IActionResult OnPostToggleFavorite([FromBody] FavoriteRequestModel model)
+        public async Task<IActionResult> OnPostAsync(FavoriteRequestModel model)
         {
+            if (LoggedInUser == null)
+            {
+                await OnGetAsync();
+            }
+
             if (model == null || model.ItemId == 0)
             {
                 return BadRequest(new { message = "Invalid request" });
             }
 
-            return new JsonResult(new { success = true, message = "Favorite status updated!" });
+            LoggedInUser?.Listings.RemoveAll(x => x.Id == model.ItemId);
+            await _identityContext.UpdateAsync(LoggedInUser);
+            await LoadAsync(LoggedInUser);
+            return Page();
         }
+
 
         private async Task LoadAsync(User user)
         {
+            FavouriteListings.Clear();
             foreach (Listing listingId in LoggedInUser.Listings)
             {
                 Listing listingFromDb = await _listingContext.ReadAsync(listingId.Id, true);
@@ -68,25 +79,6 @@ namespace MVCApplication.Areas.Identity.Pages.Account.Manage
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                await LoadAsync(user);
-                return Page();
-            }
-
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-
-            await _signInManager.RefreshSignInAsync(user);
-            return RedirectToPage();
-        }
     }
 
     public class FavoriteRequestModel

@@ -1,6 +1,6 @@
 ﻿@page
 @model MVCApplication.Areas.Identity.Pages.Account.Manage.FavouriteListingsModel
-<div class="d-flex gap-1 w-100">
+<div class="d-flex gap-1 w-100 flex-wrap">
     @{
         if (Model.FavouriteListings.Count == 0)
         {
@@ -35,12 +35,14 @@
             for (int i = 0; i < Model.FavouriteListings.Count; i++)
             {
                 <div class="listing-item offer-con">
-                    <form asp-controller="Listings" asp-action="UnFavouriteItem" method="post" style="display: inline;">
-                        <input type="hidden" name="listingId" value="@Model.FavouriteListings[i].Id" />
+                    <form method="post" style="display: inline;">
+                        @Html.AntiForgeryToken() <!-- This is required for Razor Pages / Identity area -->
+                        <input type="hidden" name="ItemId" value="@Model.FavouriteListings[i].Id" />
                         <button type="submit" class="unfav" style="background: none; border: none; padding: 0;">
                             <img src="~/star_normal.png" class="fav-images" />
                         </button>
                     </form>
+
 
 
                     <a asp-action="Details" asp-controller="Listings" asp-route-id="@Model.FavouriteListings[i].Id">

@@ -21,12 +21,15 @@
         public bool isNull { get; set; }
         public List<string> SortTypes { get; set; }
         public string SortType { get; set; }
-
         public string ModelsJson { get; set; }
         public string MakesJson { get; set; }
         public string TransmitionsJson { get; set; }
         public string ColorsJson { get; set; }
         public string FuelsJson { get; set; }
+        public int CurrentPageIndex { get; set; }
+        public int CurrentPage { get { return CurrentPageIndex + 1; } set { CurrentPage = value; } }
+        public List<int> ViewPages { get; set; }
+        public int ListingsPerPage { get; set; }
 
         public FilterModel()
         {
@@ -52,6 +55,14 @@
             SortTypes.Add("Oldest - First");
             SortTypes.Add("Price - Ascending");
             SortTypes.Add("Price - Descening");
+
+            SortType = SortTypes[0];
+
+            CurrentPageIndex = 0;
+
+            ViewPages = new List<int>();
+
+            ListingsPerPage = 20;
         }
     }
 }
