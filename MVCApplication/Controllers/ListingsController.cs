@@ -132,6 +132,13 @@ namespace MVCApplication.Controllers
             int totalPages = (int)Math.Ceiling((double)filteredListings.Count / filters.ListingsPerPage);
             filters.ViewPages = Enumerable.Range(1, totalPages).ToList();
 
+            if (filters.ViewPages.Count == 0)
+            {
+                AllListingsFilteredModel viewModel = new AllListingsFilteredModel(filteredListings, filters);
+                return View(viewModel);
+            }
+
+
             // Create a HashSet to avoid duplicates
             HashSet<int> pages = new HashSet<int>();
 
@@ -180,9 +187,9 @@ namespace MVCApplication.Controllers
                 .Take(filters.ListingsPerPage)
                 .ToList();
 
-            AllListingsFilteredModel viewModel = new AllListingsFilteredModel(filteredListings, filters);
+            AllListingsFilteredModel viewModelNew = new AllListingsFilteredModel(filteredListings, filters);
 
-            return View(viewModel);
+            return View(viewModelNew);
         }
 
         // GET: Listings

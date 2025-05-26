@@ -8,21 +8,21 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a id="manage" class="nav-link text-dark main-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+        <a id="manage" class="nav-link text-dark main-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Здравей, @UserManager.GetUserName(User)!</a>
     </li>
     <li class="nav-item">
         <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Context.Request.Path">
-            <button id="logout" type="submit" class="nav-link btn btn-link text-dark main-link">Logout</button>
+            <button id="logout" type="submit" class="nav-link btn btn-link text-dark main-link">Излез</button>
         </form>
     </li>
 }
 else
 {
     <li class="nav-item">
-        <a class="nav-link text-dark main-link" id="register" asp-area="Identity" asp-page="/Account/Register" asp-route-returnUrl="@Context.Request.Path">Register</a>
+        <a class="nav-link text-dark main-link" id="register" asp-area="Identity" asp-page="/Account/Register" asp-route-returnUrl="@Context.Request.Path">Регистрация</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark main-link" id="login" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Context.Request.Path">Login</a>
+        <a class="nav-link text-dark main-link" id="login" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Context.Request.Path">Вход</a>
     </li>
 }
 </ul>

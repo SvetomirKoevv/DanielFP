@@ -24,7 +24,7 @@ namespace DataLayer
 
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=DESKTOP-RD8LV0K;Database=RevHaus2;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=TIMI-PCL\\LAPTOP;Database=RevHaus2;Trusted_Connection=True;");
             }
             base.OnConfiguring(optionsBuilder);
 

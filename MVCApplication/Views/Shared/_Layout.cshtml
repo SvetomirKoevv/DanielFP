@@ -17,7 +17,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">RevHaus</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><i>RevHaus</i></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -25,22 +25,22 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark main-link" asp-area="" asp-controller="Listings" asp-action="AllListings">View all Listings</a>
+                            <a class="nav-link text-dark main-link" asp-area="" asp-controller="Listings" asp-action="AllListings">Обяви</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark main-link" asp-area="" asp-controller="AuctionListings" asp-action="AllAuctions">View All Auctions</a>
+                            <a class="nav-link text-dark main-link" asp-area="" asp-controller="AuctionListings" asp-action="AllAuctions">Аукциони</a>
                         </li>
                         @{
                             if (User.IsInRole(Role.Administrator.ToString()))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark main-link" asp-area="" asp-controller="Listings" asp-action="Index">List all Listings</a>
+                                    <a class="nav-link text-dark main-link" asp-area="" asp-controller="Listings" asp-action="Index">Таблица с обяви</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark main-link" asp-area="" asp-controller="AuctionListings" asp-action="Index">List all Auctions</a>
+                                    <a class="nav-link text-dark main-link" asp-area="" asp-controller="AuctionListings" asp-action="Index">Таблица с аукциони</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark main-link" asp-area="" asp-controller="Users" asp-action="Index">List all Users</a>
+                                    <a class="nav-link text-dark main-link" asp-area="" asp-controller="Users" asp-action="Index">Таблица с потребителите</a>
                                 </li>
                             }
                         }
@@ -60,7 +60,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - MVCApplication - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2025 - Даниел Николов - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

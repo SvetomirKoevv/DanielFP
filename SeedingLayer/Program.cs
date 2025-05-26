@@ -30,7 +30,7 @@ namespace SeedingLayer
                 builder.UseSqlServer(
                     // Daniel - Server=DESKTOP-G098CJK\\SQLEXPRESS;Database=RevHaus;Trusted_Connection=True;
                     // PC - Server=DESKTOP-RD8LV0K;Database=RevHaus;Trusted_Connection=True;
-                    "Server=DESKTOP-RD8LV0K;Database=RevHaus2;Trusted_Connection=True;"
+                    "Server=TIMI-PCL\\LAPTOP;Database=RevHaus2;Trusted_Connection=True;"
                 );
 
                 RevHausDbContext dbContext = new RevHausDbContext(builder.Options);

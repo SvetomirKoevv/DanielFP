@@ -38,11 +38,11 @@ namespace MVCApplication
             services.AddScoped<IRecurringJobManager, RecurringJobManager>();
 
             services.AddDbContext<RevHausDbContext>(options =>
-                options.UseSqlServer("Server=DESKTOP-RD8LV0K;Database=RevHaus2;Trusted_Connection=True;"),
+                options.UseSqlServer("Server=TIMI-PCL\\LAPTOP;Database=RevHaus2;Trusted_Connection=True;"),
                 ServiceLifetime.Scoped);
 
             services.AddHangfire(config =>
-                config.UseSqlServerStorage("Server=DESKTOP-RD8LV0K;Database=RevHaus2;Trusted_Connection=True;"));
+                config.UseSqlServerStorage("Server=TIMI-PCL\\LAPTOP;Database=RevHaus2;Trusted_Connection=True;"));
             services.AddHangfireServer();
 
             services.AddIdentity<User, IdentityRole>(options =>
